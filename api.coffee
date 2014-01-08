@@ -20,12 +20,15 @@ common = require './common'
 config = require './config'
 
 fetchSecurityToken = (callback) ->
+	console.log "Fetching security token..."
 	common.request.get config.host + '/index.php', (err, res, body) ->
 		common.fatal 'Cannot fetch security token:', err if err?
 		common.fatal 'Unable to find security token in source' unless [_, config.securityToken] = body.match /var SECURITY_TOKEN = '([a-f0-9]{40})';/
+		console.log "Done:", config.securityToken
 		do callback if callback?
 		
 sendLoginRequest = (callback) ->
+	console.log "Logging in as #{config.username}..."
 	common.request.post config.host + '/index.php/Login/', 
 	form: 
 		username: config.username
@@ -39,6 +42,7 @@ sendLoginRequest = (callback) ->
 		do callback if callback?
 
 joinRoom = (roomID, callback) ->
+	console.log "Joining room #{roomID}"
 	common.request.post config.host + '/index.php/AJAXProxy/',
 	form:
 		actionName: 'join'
@@ -46,22 +50,25 @@ joinRoom = (roomID, callback) ->
 		'parameters[roomID]': roomID
 		t: config.securityToken
 	, (err, res, body) ->
-		console.log body
+		data = (JSON.parse body).returnValues
+		console.log "Done, room title is", data.title
 		
 		do callback if callback?
 
 getRoomList = (callback) ->
+	console.log "Fetching roomlist..."
 	common.request.post config.host + '/index.php/AJAXProxy/',
 	form:
 		actionName: 'getRoomList'
 		className: 'chat\\data\\room\\RoomAction'
 		t: config.securityToken
 	, (err, res, body) ->
-		roomList = JSON.parse body
-		
-		callback roomList.returnValues if callback?
+		roomList = (JSON.parse body).returnValues
+		console.log "Found #{roomList.length} rooms"
+		callback roomList if callback?
 
 leaveChat = (callback) ->
+	console.log "Leaving chat..."
 	common.request.post config.host + '/index.php/AJAXProxy/',
 	form:
 		actionName: 'leave'

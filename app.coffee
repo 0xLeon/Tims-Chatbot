@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###
 
+console.log "Starting, PID #{process.pid}"
 fs = require 'fs'
 async = require 'async'
 request = (require 'request').defaults jar: new (require('tough-cookie').CookieJar)(null, false)
