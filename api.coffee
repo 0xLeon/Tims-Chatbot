@@ -18,17 +18,18 @@
 
 common = require './common'
 config = require './config'
+winston = require 'winston'
 
 fetchSecurityToken = (callback) ->
-	console.log "Fetching security token..."
+	winston.debug "Fetching security token..."
 	common.request.get config.host + '/index.php', (err, res, body) ->
 		common.fatal 'Cannot fetch security token:', err if err?
 		common.fatal 'Unable to find security token in source' unless [_, config.securityToken] = body.match /var SECURITY_TOKEN = '([a-f0-9]{40})';/
-		console.log "Done:", config.securityToken
+		winston.debug "Done, Security token is:", config.securityToken
 		do callback if callback?
 		
 sendLoginRequest = (callback) ->
-	console.log "Logging in as #{config.username}..."
+	winston.debug "Logging in as #{config.username}..."
 	common.request.post config.host + '/index.php/Login/', 
 	form: 
 		username: config.username
@@ -37,12 +38,12 @@ sendLoginRequest = (callback) ->
 	, (err, res, body) ->
 		common.fatal 'Cannot send login request', err if err?
 		common.fatal 'Login unsuccessful' if (not [_, userID] = body.match /WCF\.User\.init\((\d+), '/) or (config.userID = parseInt userID) is 0
-		console.log 'Logged in as userID', config.userID
+		winston.info 'Logged in as userID', config.userID
 		
 		do callback if callback?
 
 joinRoom = (roomID, callback) ->
-	console.log "Joining room #{roomID}"
+	winston.debug "Joining room #{roomID}"
 	common.request.post config.host + '/index.php/AJAXProxy/',
 	form:
 		actionName: 'join'
@@ -51,12 +52,12 @@ joinRoom = (roomID, callback) ->
 		t: config.securityToken
 	, (err, res, body) ->
 		data = (JSON.parse body).returnValues
-		console.log "Done, room title is", data.title
+		winston.debug "Done, room title is", data.title
 		
 		do callback if callback?
 
 getRoomList = (callback) ->
-	console.log "Fetching roomlist..."
+	winston.debug "Fetching roomlist..."
 	common.request.post config.host + '/index.php/AJAXProxy/',
 	form:
 		actionName: 'getRoomList'
@@ -64,11 +65,11 @@ getRoomList = (callback) ->
 		t: config.securityToken
 	, (err, res, body) ->
 		roomList = (JSON.parse body).returnValues
-		console.log "Found #{roomList.length} rooms"
+		winston.info "Found #{roomList.length} rooms"
 		callback roomList if callback?
 
 leaveChat = (callback) ->
-	console.log "Leaving chat..."
+	winston.info "Leaving chat..."
 	common.request.post config.host + '/index.php/AJAXProxy/',
 	form:
 		actionName: 'leave'

@@ -14,7 +14,8 @@
 		"tough-cookie": "*",
 		"ejs": "*",
 		"less": "*",
-		"connect-assets": "*"
+		"connect-assets": "*",
+		"winston": "*"
 	},
 	"scripts": {
 		"prestart": "npm install",

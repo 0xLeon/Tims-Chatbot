@@ -16,10 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###
 
+winston = require 'winston'
+
 module.exports =
 	fatal: (message, err) ->
 		if err?
-			console.log message, err
+			winston.error message, err
 		else
-			console.log message
+			winston.error message
 		process.exit 1

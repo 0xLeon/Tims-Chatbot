@@ -16,11 +16,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###
 
-console.log "Starting, PID #{process.pid}"
+winston = require 'winston'
+winston.remove winston.transports.Console
+winston.add winston.transports.Console,
+	colorize: yes
+	timestamp: yes
+	level: 'debug'
+
+winston.info "Starting, PID #{process.pid}"
+
 fs = require 'fs'
 async = require 'async'
 request = (require 'request').defaults jar: new (require('tough-cookie').CookieJar)(null, false)
 config = require './config'
+
+process.title = "Chatbot (#{config.host})"
 
 common = require './common'
 common.request = request
