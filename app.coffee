@@ -67,21 +67,48 @@ sendLoginRequest = (callback) ->
 		
 		do callback if callback?
 
-joinChat = (callback) ->
+joinRoom = (roomID, callback) ->
 	request.post config.host + '/index.php/AJAXProxy/',
 	form:
 		actionName: 'join'
 		className: 'chat\\data\\room\\RoomAction'
-		'parameters[roomID]': 1
+		'parameters[roomID]': roomID
 		t: securityToken
 	, (err, res, body) ->
 		console.log body
 		
 		do callback if callback?
 
+getRoomList = (callback) ->
+	request.post config.host + '/index.php/AJAXProxy/',
+	form:
+		actionName: 'getRoomList'
+		className: 'chat\\data\\room\\RoomAction'
+		t: securityToken
+	, (err, res, body) ->
+		roomList = JSON.parse body
+		
+		callback roomList.returnValues if callback?
+
+fetchMessages = (callback) ->
+	request.get config.host + 'index.php/NewMessages/', (err, res, body) ->
+		data = JSON.parse body
+		console.log data
+		
+		callback data if callback?
+		
+recursiveFetchMessages = (callback) ->
+	fetchMessages (data) ->
+		callback data if callback
+		setTimeout ->
+			recursiveFetchMessages callback
+		, 5e2
+		
 fetchSecurityToken ->
 	sendLoginRequest ->
 		# new session after login, refetch token
 		fetchSecurityToken ->
-			joinChat ->
-				console.log 'Finished'
+			getRoomList (roomList) ->
+				fatal 'No available rooms' if roomList.length is 0
+				joinRoom roomList[0].roomID, ->
+					do recursiveFetchMessages
