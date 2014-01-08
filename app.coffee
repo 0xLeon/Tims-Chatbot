@@ -39,5 +39,6 @@ api.fetchSecurityToken -> api.sendLoginRequest ->
 	# new session after login, refetch token
 	api.fetchSecurityToken -> api.getRoomList (roomList) ->
 		common.fatal 'No available rooms' if roomList.length is 0
+		do frontend.listen
 		api.joinRoom roomList[0].roomID, ->
 			do api.recursiveFetchMessages

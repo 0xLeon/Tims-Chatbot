@@ -17,3 +17,21 @@
 ###
 
 express = require 'express'
+config = require './config'
+
+app = do express
+app.set 'views', "#{__dirname}/views"
+app.set 'view engine', 'ejs'
+app.use (require 'connect-assets')
+	production: true
+	buildDir: 'derp'
+
+app.get '/', (req, res) ->
+	res.render 'index',
+		config: config
+
+listen = ->
+	app.listen config.port, config.ip
+
+module.exports =
+	listen: listen

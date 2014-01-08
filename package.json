@@ -11,7 +11,10 @@
 		"async": ">=0.2",
 		"coffee-script": ">=1.4",
 		"request": "*",
-		"tough-cookie": "*"
+		"tough-cookie": "*",
+		"ejs": "*",
+		"less": "*",
+		"connect-assets": "*"
 	},
 	"scripts": {
 		"prestart": "npm install",
