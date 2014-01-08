@@ -1,0 +1,25 @@
+{
+	"name": "be.bastelstu.chat.bot",
+	"description": "",
+	"homepage": "https://github.com/wbbaddons/Tims-Chatbot",
+	"keywords": [
+		"woltlab community framework"
+	],
+	"author": "Tim Düsterhus <timwolla@bastelstu.be>",
+	"dependencies": {
+		"express": "~3",
+		"async": ">=0.2",
+		"coffee-script": ">=1.4",
+		"request": "*",
+		"tough-cookie": "*"
+	},
+	"scripts": {
+		"prestart": "npm install",
+		"start": "coffee app.coffee"
+	},
+	"engines": { 
+		"node": ">=0.8.0",
+		"npm": ">=1.0"
+	}, 
+	"version": "1.0.0"
+}
