@@ -90,6 +90,14 @@ getRoomList = (callback) ->
 		
 		callback roomList.returnValues if callback?
 
+leaveChat = (callback) ->
+	request.post config.host + '/index.php/AJAXProxy/',
+	form:
+		actionName: 'leave'
+		className: 'chat\\data\\room\\RoomAction'
+		t: securityToken
+	, -> do callback if callback?
+
 fetchMessages = (callback) ->
 	request.get config.host + 'index.php/NewMessages/', (err, res, body) ->
 		data = JSON.parse body
@@ -103,12 +111,14 @@ recursiveFetchMessages = (callback) ->
 		setTimeout ->
 			recursiveFetchMessages callback
 		, 5e2
-		
-fetchSecurityToken ->
-	sendLoginRequest ->
-		# new session after login, refetch token
-		fetchSecurityToken ->
-			getRoomList (roomList) ->
-				fatal 'No available rooms' if roomList.length is 0
-				joinRoom roomList[0].roomID, ->
-					do recursiveFetchMessages
+
+process.on 'SIGTERM', -> leaveChat -> process.exit 0
+process.on 'SIGINT', -> leaveChat -> process.exit 0
+
+
+fetchSecurityToken -> sendLoginRequest ->
+	# new session after login, refetch token
+	fetchSecurityToken -> getRoomList (roomList) ->
+		fatal 'No available rooms' if roomList.length is 0
+		joinRoom roomList[0].roomID, ->
+			do recursiveFetchMessages
