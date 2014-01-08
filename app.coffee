@@ -44,6 +44,7 @@ config.upSince = new Date()
 
 frontend = require './frontend'
 api = require './api'
+handlers = require './handlers'
 
 process.on 'SIGTERM', -> api.leaveChat -> process.exit 0
 process.on 'SIGINT', -> api.leaveChat -> process.exit 0
@@ -54,5 +55,10 @@ api.fetchSecurityToken -> api.sendLoginRequest ->
 		common.fatal 'No available rooms' if roomList.length is 0
 		do frontend.listen
 		api.joinRoom roomList[0].roomID, ->
+			do handlers.loadHandlers
 			api.sendMessage "I'm here!", yes, ->
-				do api.recursiveFetchMessages
+				api.recursiveFetchMessages (data) ->
+					async.each data.messages, (item, callback) ->
+						handlers.handle item, callback
+					, (err) ->
+						console.log "Handled each message"

@@ -80,7 +80,6 @@ leaveChat = (callback) ->
 fetchMessages = (callback) ->
 	common.request.get config.host + 'index.php/NewMessages/', (err, res, body) ->
 		data = JSON.parse body
-		console.log data
 		
 		callback data if callback?
 		
