@@ -18,6 +18,7 @@
 
 express = require 'express'
 config = require './config'
+api = require './api'
 
 app = do express
 app.set 'views', "#{__dirname}/views"
@@ -29,6 +30,11 @@ app.use (require 'connect-assets')
 app.get '/', (req, res) ->
 	res.render 'index',
 		config: config
+
+app.get '/shutdown', (req, res) ->
+	api.leaveChat ->
+		res.send 200, 'OK'
+		process.exit 0
 
 listen = ->
 	app.listen config.port, config.ip

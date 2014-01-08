@@ -26,8 +26,10 @@ common.request = request
 
 config.port ?= 9001
 config.ip ?= '0.0.0.0'
+
 config.securityToken = ''
 config.userID = null
+config.upSince = new Date()
 
 frontend = require './frontend'
 api = require './api'
@@ -41,4 +43,5 @@ api.fetchSecurityToken -> api.sendLoginRequest ->
 		common.fatal 'No available rooms' if roomList.length is 0
 		do frontend.listen
 		api.joinRoom roomList[0].roomID, ->
-			do api.recursiveFetchMessages
+			api.sendMessage "I'm here!", yes, ->
+				do api.recursiveFetchMessages

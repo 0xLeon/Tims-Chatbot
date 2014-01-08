@@ -29,21 +29,14 @@
 				<h1>Chatbot</h1>
 			</div>
 			<div class="well">
-				<dl class="dl-horizontal" style="height: 500px; overflow-y: scroll;" id="messageContainer">
-					
+				<dl>
+					<dt>User</dt>
+					<dd><a href="<%=config.host%>index.php/User/<%=config.userID%>"><%=config.username%></a></dd>
+					<dt>Up since</dt>
+					<dd><%=config.upSince%></dd>
 				</dl>
-				<form role="form" id="form">
-					<div class="form-group">
-						<div class="input-group">
-							<input type="text" id="m" placeholder="Nachricht" required="required" class="form-control input-lg" />
-							
-							<span class="input-group-btn">
-								<button class="btn btn-primary btn-lg" type="submit">Senden</button>
-							</span>
-						</div>
-					</div>
-				</form>
 			</div>
+			<a href="/shutdown">Shutdown</a>
 		</div>
 		<script src="//code.jquery.com/jquery.js"></script>
 	</body>

@@ -83,6 +83,16 @@ recursiveFetchMessages = (callback) ->
 			recursiveFetchMessages callback
 		, 5e2
 
+sendMessage = (message, enableSmilies = yes, callback) ->
+	common.request.post config.host + '/index.php/AJAXProxy/',
+	form:
+		actionName: 'send'
+		className: 'chat\\data\\message\\MessageAction'
+		'parameters[text]': message
+		'parameters[enableSmilies]': if enableSmilies then 1 else 0
+		t: config.securityToken
+	, -> do callback if callback?
+
 module.exports =
 	fetchSecurityToken: fetchSecurityToken
 	sendLoginRequest: sendLoginRequest
@@ -91,3 +101,4 @@ module.exports =
 	leaveChat: leaveChat
 	fetchMessages: fetchMessages
 	recursiveFetchMessages: recursiveFetchMessages
+	sendMessage: sendMessage
