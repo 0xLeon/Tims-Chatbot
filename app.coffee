@@ -17,108 +17,27 @@
 ###
 
 fs = require 'fs'
-http = require 'http'
 async = require 'async'
-express = require 'express'
-request = (require 'request')
-request = request.defaults jar: new (require('tough-cookie').CookieJar)(null, false)
+request = (require 'request').defaults jar: new (require('tough-cookie').CookieJar)(null, false)
+config = require './config'
 
-# Try to load config
-try
-	filename = "#{__dirname}/config"
-	
-	# configuration file was passed via `process.argv`
-	filename = (require 'path').resolve process.argv[2] if process.argv[2]?
-	
-	#filename = fs.realpathSync filename
-	
-	console.log "Using config '#{filename}'"
-	config = require filename
-catch e
-	console.error """Cannot load config: #{e}"""
-	process.exit 1
+common = require './common'
+common.request = request
 
-fatal = (message, err) ->
-	if err?
-		console.log message, err
-	else
-		console.log message
-	process.exit 1
+config.port ?= 9001
+config.ip ?= '0.0.0.0'
+config.securityToken = ''
+config.userID = null
 
-securityToken = ''
-userID = null
+frontend = require './frontend'
+api = require './api'
 
-fetchSecurityToken = (callback) ->
-	request.get config.host + '/index.php', (err, res, body) ->
-		fatal 'Cannot fetch security token:', err if err?
-		fatal 'Unable to find security token in source' unless [_, securityToken] = body.match /var SECURITY_TOKEN = '([a-f0-9]{40})';/
-		do callback if callback?
-		
-sendLoginRequest = (callback) ->
-	request.post config.host + '/index.php/Login/', 
-	form: 
-		username: config.username
-		password: config.password
-		t: securityToken
-	, (err, res, body) ->
-		fatal 'Cannot send login request', err if err?
-		fatal 'Login unsuccessful' if (not [_, userID] = body.match /WCF\.User\.init\((\d+), '/) or (userID = parseInt userID) is 0
-		console.log 'Logged in as userID', userID
-		
-		do callback if callback?
+process.on 'SIGTERM', -> api.leaveChat -> process.exit 0
+process.on 'SIGINT', -> api.leaveChat -> process.exit 0
 
-joinRoom = (roomID, callback) ->
-	request.post config.host + '/index.php/AJAXProxy/',
-	form:
-		actionName: 'join'
-		className: 'chat\\data\\room\\RoomAction'
-		'parameters[roomID]': roomID
-		t: securityToken
-	, (err, res, body) ->
-		console.log body
-		
-		do callback if callback?
-
-getRoomList = (callback) ->
-	request.post config.host + '/index.php/AJAXProxy/',
-	form:
-		actionName: 'getRoomList'
-		className: 'chat\\data\\room\\RoomAction'
-		t: securityToken
-	, (err, res, body) ->
-		roomList = JSON.parse body
-		
-		callback roomList.returnValues if callback?
-
-leaveChat = (callback) ->
-	request.post config.host + '/index.php/AJAXProxy/',
-	form:
-		actionName: 'leave'
-		className: 'chat\\data\\room\\RoomAction'
-		t: securityToken
-	, -> do callback if callback?
-
-fetchMessages = (callback) ->
-	request.get config.host + 'index.php/NewMessages/', (err, res, body) ->
-		data = JSON.parse body
-		console.log data
-		
-		callback data if callback?
-		
-recursiveFetchMessages = (callback) ->
-	fetchMessages (data) ->
-		callback data if callback
-		setTimeout ->
-			recursiveFetchMessages callback
-		, 5e2
-
-process.on 'SIGTERM', -> leaveChat -> process.exit 0
-process.on 'SIGINT', -> leaveChat -> process.exit 0
-
-
-fetchSecurityToken -> sendLoginRequest ->
+api.fetchSecurityToken -> api.sendLoginRequest ->
 	# new session after login, refetch token
-	fetchSecurityToken -> getRoomList (roomList) ->
-		fatal 'No available rooms' if roomList.length is 0
-		joinRoom roomList[0].roomID, ->
-			do recursiveFetchMessages
+	api.fetchSecurityToken -> api.getRoomList (roomList) ->
+		common.fatal 'No available rooms' if roomList.length is 0
+		api.joinRoom roomList[0].roomID, ->
+			do api.recursiveFetchMessages
