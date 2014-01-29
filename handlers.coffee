@@ -48,6 +48,11 @@ loadHandler = (name, callback) ->
 			callback "compile" if callback?
 
 unloadHandler = (name, callback) ->
+	if name is 'opserv'
+		winston.warn "Trying to unload opserv"
+		callback "permissionDenied" if callback?
+		return
+		
 	winston.debug 'Unloading handler:', name
 	unless loadedHandlers[name]?
 		winston.warn "Trying to unload unloaded handler", name
