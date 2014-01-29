@@ -23,10 +23,28 @@ sqlite = (require 'sqlite3').verbose()
 
 db = new sqlite.Database config.database
 
-db.run "CREATE TABLE IF NOT EXISTS bot (
-	key VARCHAR(255) PRIMARY KEY,
-	value MEDIUMTEXT
-);"
+db.serialize ->
+	db.run "CREATE TABLE IF NOT EXISTS bot (
+		key VARCHAR(255),
+		value MEDIUMTEXT,
+		PRIMARY KEY(key)
+	);"
+	db.run "CREATE TABLE IF NOT EXISTS users (
+		userID INT(10),
+		lastname VARCHAR(255) DEFAULT '',
+		key CHAR(40) DEFAULT NULL,
+		PRIMARY KEY(userID)
+	);"
+	db.run "CREATE TABLE IF NOT EXISTS user_to_permission (
+		userID INT(10),
+		permission VARCHAR(255),
+		PRIMARY KEY(userID, permission),
+		FOREIGN KEY(userID) REFERENCES users(userID)
+	);"
+	do ->
+		stmt = db.prepare "INSERT OR IGNORE INTO bot (key, value) VALUES (?, ?);"
+		stmt.run 'firstStart', Date.now()
+		do stmt.finalize
 
 process.on 'exit', ->
 	winston.debug 'Closing database'
