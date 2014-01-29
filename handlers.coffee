@@ -30,8 +30,14 @@ loadHandlers = ->
 
 loadHandler = (name, callback) ->
 	winston.debug 'Loading handler:', name
+	
+	unless /^[a-z]+$/.test name
+		winston.warn "Trying to load invalid named handler", name
+		callback "invalid" if callback?
+		return
+		
 	if loadedHandlers[name]?
-		winston.warn "Trying to load loaded handler", #{name}
+		winston.warn "Trying to load loaded handler", name
 		
 		callback "loaded" if callback?
 	else

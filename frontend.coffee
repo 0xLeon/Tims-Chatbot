@@ -50,8 +50,14 @@ app.get '/shutdown', (req, res) ->
 		res.send 200, 'OK'
 		process.exit 0
 
-listen = ->
-	app.listen config.port, config.ip
+listen = -> app.listen config.port, config.ip
+
+removeRoute = (name) ->
+	app.routes.get.splice k, 1 for v, k in app.routes.get when v.path is name if app.routes.get?
+	app.routes.post.splice k, 1 for v, k in app.routes.post when v.path is name if app.routes.post?
 
 module.exports =
 	listen: listen
+	get: app.get
+	post: app.post
+	removeRoute: removeRoute
