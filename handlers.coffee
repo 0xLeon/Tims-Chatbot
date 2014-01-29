@@ -65,11 +65,15 @@ unloadHandler = (name, callback) ->
 		
 		delete loadedHandlers[name]
 
+getLoadedHandlers = -> k for k of loadedHandlers
+
 handle = (message, callback) ->
 	async.applyEach (v.handle for k, v of loadedHandlers), message, callback
+
 
 module.exports =
 	loadHandlers: loadHandlers
 	loadHandler: loadHandler
 	unloadHandler: unloadHandler
+	getLoadedHandlers: getLoadedHandlers
 	handle: handle

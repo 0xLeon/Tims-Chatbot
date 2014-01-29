@@ -46,6 +46,8 @@ handle = (message, callback) ->
 					api.sendMessage "Failed to unload module #{parameters}", no, callback
 				else
 					api.sendMessage "Unloaded module #{parameters}", no, callback
+		when "loaded"
+			api.sendMessage "These handlers are loaded: #{handlers.getLoadedHandlers().join ', '}", no, callback
 		else
 			winston.debug "[OpServ] Ignoring unknown command", command
 			do callback if callback?
