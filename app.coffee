@@ -41,8 +41,8 @@ config.ip ?= '0.0.0.0'
 config.securityToken = ''
 config.userID = null
 config.upSince = new Date()
+config.enableFrontend = yes
 
-frontend = require './frontend'
 api = require './api'
 handlers = require './handlers'
 
@@ -53,7 +53,8 @@ api.fetchSecurityToken -> api.sendLoginRequest ->
 	# new session after login, refetch token
 	api.fetchSecurityToken -> api.getRoomList (roomList) ->
 		common.fatal 'No available rooms' if roomList.length is 0
-		do frontend.listen
+		do (require './frontend').listen if config.enableFrontend
+		
 		api.joinRoom roomList[0].roomID, ->
 			do handlers.loadHandlers
 			api.sendMessage "I'm here!", yes, ->
