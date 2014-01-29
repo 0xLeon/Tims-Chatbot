@@ -36,7 +36,6 @@ config = require './config'
 
 process.title = "Chatbot (#{config.host})"
 
-sqlite = (require 'sqlite3').verbose()
 common = require './common'
 common.request = request
 
@@ -49,9 +48,7 @@ config.upSince = new Date()
 config.enableFrontend = yes
 config.database = __dirname + '/storage.sqlite3'
 
-db = new sqlite.Database config.database
-db.close()
-
+db = require './db'
 api = require './api'
 handlers = require './handlers'
 
