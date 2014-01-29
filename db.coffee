@@ -31,7 +31,8 @@ db.serialize ->
 	);"
 	db.run "CREATE TABLE IF NOT EXISTS users (
 		userID INT(10),
-		lastname VARCHAR(255) DEFAULT '',
+		lastUsername VARCHAR(255) DEFAULT '',
+		lastSeen INT(10),
 		key CHAR(40) DEFAULT NULL,
 		PRIMARY KEY(userID)
 	);"

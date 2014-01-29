@@ -24,10 +24,11 @@ async = require 'async'
 loadedHandlers = {}
 loadHandlers = ->
 	winston.info "Loading message handlers"
-	loadHandler 'opserv', (err) ->
-		return unless err?
-		winston.error "panic() - Going nowhere without my opserv"
-		process.exit 1
+	for name in [ 'opserv', 'core' ]
+		loadHandler name, (err) ->
+			return unless err?
+			winston.error "panic() - Going nowhere without my", name
+			process.exit 1
 		
 	async.each config.handlers, loadHandler, (err) ->
 		winston.info "Finished loading handlers"
@@ -58,8 +59,8 @@ loadHandler = (name, callback) ->
 			callback "compile" if callback?
 
 unloadHandler = (name, callback) ->
-	if name is 'opserv'
-		winston.warn "Trying to unload opserv"
+	if name in [ 'core', 'opserv' ]
+		winston.warn "Trying to unload", name
 		callback "permissionDenied" if callback?
 		return
 		

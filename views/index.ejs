@@ -33,7 +33,7 @@
 			<ul class="list-inline">
 				<% for (var i = 0; i < loadedHandlers.length; i++) { var handler = loadedHandlers[i]; %>
 					<li>
-						<%=handler%><% if (handler !== 'opserv') { %> – <a href="/opserv/unload/<%=handler%>">Unload</a> <% } %>
+						<%=handler%><% if (handler !== 'opserv' && handler !== 'core') { %> – <a href="/opserv/unload/<%=handler%>">Unload</a> <% } %>
 					</li>
 				<% } %>
 			</ul>
