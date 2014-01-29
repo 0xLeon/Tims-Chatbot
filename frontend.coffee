@@ -19,6 +19,7 @@
 express = require 'express'
 config = require './config'
 api = require './api'
+handlers = require './handlers'
 
 app = do express
 app.set 'views', "#{__dirname}/views"
@@ -28,8 +29,21 @@ app.use (require 'connect-assets')
 	buildDir: 'derp'
 
 app.get '/', (req, res) ->
-	res.render 'index',
-		config: config
+	api.getRoomList (roomList) ->
+		res.render 'index',
+			config: config
+			roomList: roomList
+			loadedHandlers: do handlers.getLoadedHandlers
+
+app.get '/join/:id', (req, res) ->
+	unless /^[1-9][0-9]*$/.test req.params.id
+		res.send 400, 'Bad request'
+		return
+	api.joinRoom req.params.id, (err) ->
+		if err?
+			res.send 503, err
+		else
+			res.send 200, 'OK'
 
 app.get '/shutdown', (req, res) ->
 	api.leaveChat ->

@@ -52,9 +52,17 @@ joinRoom = (roomID, callback) ->
 		t: config.securityToken
 	, (err, res, body) ->
 		data = (JSON.parse body).returnValues
-		winston.debug "Done, room title is", data.title
 		
-		do callback if callback?
+		if data.errorMessage?
+			if data.fieldName is 'roomID'
+				winston.error "Room is invalid"
+				callback 'invalid' if callback?
+			else
+				winston.error "Unexpected error while joining", data
+				process.exit 1
+		else
+			winston.debug "Done, room title is", data.title
+			do callback if callback?
 
 getRoomList = (callback) ->
 	winston.debug "Fetching roomlist..."
