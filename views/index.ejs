@@ -1,59 +1,50 @@
-<!DOCTYPE html>
-<html>
-	<!--
-	  - Chatbot for Tim's Chat 3
-	  - Copyright (C) 2011 - 2014 Tim Düsterhus
-	  - 
-	  - This program is free software: you can redistribute it and/or modify
-	  - it under the terms of the GNU Affero General Public License as published by
-	  - the Free Software Foundation, either version 3 of the License, or
-	  - (at your option) any later version.
-	  - 
-	  - This program is distributed in the hope that it will be useful,
-	  - but WITHOUT ANY WARRANTY; without even the implied warranty of
-	  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	  - GNU Affero General Public License for more details.
-	  - 
-	  - You should have received a copy of the GNU Affero General Public License
-	  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
-	  -->
-	<head>
-		<meta charset="utf-8" />
-		<base href="/" />
-		<title>Chatbot</title>
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" />
-	</head>
-	<body>
-		<div class="container">
-			<div class="page-header">
-				<h1>Chatbot</h1>
-			</div>
-			<div class="well">
-				<dl class="dl-horizontal">
-					<dt>User</dt>
-					<dd><a href="<%=config.host%>index.php/User/<%=config.userID%>"><%=config.username%></a></dd>
-					<dt>Up since</dt>
-					<dd><%=config.upSince%></dd>
-					<dt>Loaded handlers</dt>
-					<dd><ul class="list-inline"><li><%-loadedHandlers.join('</li><li>')%></li></ul></dd>
-					<dt>Roomlist</dt>
-					<dd>
-						<ul>
-							<% for (var i = 0; i < roomList.length; i++) { var room = roomList[i]; %>
-								<li>
-									<% if (room.active) { %>
-										<strong><%=room.title%></strong>
-									<% } else { %>
-										<%=room.title%> – <a href="/join/<%=room.roomID%>">Join</a>
-									<% } %>
-								</li>
-							<% } %>
-						</ul>
-					</dd>
-				</dl>
-			</div>
-			<a href="/shutdown">Shutdown</a>
-		</div>
-		<script src="//code.jquery.com/jquery.js"></script>
-	</body>
-</html>
+<% include header %>
+<%
+/*
+ * Chatbot for Tim's Chat 3
+ * Copyright (C) 2011 - 2014 Tim Düsterhus
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+%>
+<ul class="nav nav-tabs">
+	<li class="active"><a>Bot</a></li>
+	<li><a href="/opserv">opserv</a></li>
+</ul>
+<div class="container">
+	<dl class="dl-horizontal">
+		<dt>User</dt>
+		<dd><a href="<%=config.host%>index.php/User/<%=config.userID%>"><%=config.username%></a></dd>
+		<dt>Up since</dt>
+		<dd><%=config.upSince%></dd>
+		<dt>Loaded handlers</dt>
+		<dd><ul class="list-inline"><li><%-loadedHandlers.join('</li><li>')%></li></ul></dd>
+		<dt>Roomlist</dt>
+		<dd>
+			<ul>
+				<% for (var i = 0; i < roomList.length; i++) { var room = roomList[i]; %>
+					<li>
+						<% if (room.active) { %>
+							<strong><%=room.title%></strong>
+						<% } else { %>
+							<%=room.title%> – <a href="/join/<%=room.roomID%>">Join</a>
+						<% } %>
+					</li>
+				<% } %>
+			</ul>
+		</dd>
+	</dl>
+</div>
+<a href="/shutdown">Shutdown</a>
+<% include footer %>
