@@ -10,12 +10,13 @@
 		"express": "~3",
 		"async": ">=0.2",
 		"coffee-script": ">=1.4",
-		"request": "*",
+		"request": "~2.33",
 		"tough-cookie": "*",
 		"ejs": "*",
 		"less": "*",
 		"connect-assets": "*",
-		"winston": "*"
+		"winston": "*",
+		"sqlite3": "~2.2"
 	},
 	"scripts": {
 		"prestart": "npm install",

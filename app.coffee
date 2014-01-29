@@ -27,11 +27,16 @@ winston.info "Starting, PID #{process.pid}"
 
 fs = require 'fs'
 async = require 'async'
-request = (require 'request').defaults jar: new (require('tough-cookie').CookieJar)(null, false)
+request = require 'request'
+jar = request.jar()
+jar._jar.rejectPublicSuffixes = false
+request = request.defaults jar: jar
+
 config = require './config'
 
 process.title = "Chatbot (#{config.host})"
 
+sqlite = (require 'sqlite3').verbose()
 common = require './common'
 common.request = request
 
@@ -42,6 +47,10 @@ config.securityToken = ''
 config.userID = null
 config.upSince = new Date()
 config.enableFrontend = yes
+config.database = __dirname + '/storage.sqlite3'
+
+db = new sqlite.Database config.database
+db.close()
 
 api = require './api'
 handlers = require './handlers'
