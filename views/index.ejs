@@ -29,7 +29,15 @@
 		<dt>Up since</dt>
 		<dd><%=config.upSince%></dd>
 		<dt>Loaded handlers</dt>
-		<dd><ul class="list-inline"><li><%-loadedHandlers.join('</li><li>')%></li></ul></dd>
+		<dd>
+			<ul class="list-inline">
+				<% for (var i = 0; i < loadedHandlers.length; i++) { var handler = loadedHandlers[i]; %>
+					<li>
+						<%=handler%><% if (handler !== 'opserv') { %> – <a href="/opserv/unload/<%=handler%>">Unload</a> <% } %>
+					</li>
+				<% } %>
+			</ul>
+		</dd>
 		<dt>Roomlist</dt>
 		<dd>
 			<ul>
@@ -46,5 +54,5 @@
 		</dd>
 	</dl>
 </div>
-<a href="/shutdown">Shutdown</a>
+<a href="/opserv/shutdown">Shutdown</a>
 <% include footer %>

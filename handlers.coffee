@@ -24,7 +24,11 @@ async = require 'async'
 loadedHandlers = {}
 loadHandlers = ->
 	winston.info "Loading message handlers"
-	loadHandler 'opserv'
+	loadHandler 'opserv', (err) ->
+		return unless err?
+		winston.error "panic() - Going nowhere without my opserv"
+		process.exit 1
+		
 	async.each config.handlers, loadHandler, (err) ->
 		winston.info "Finished loading handlers"
 
@@ -50,7 +54,7 @@ loadHandler = (name, callback) ->
 				unloadHandler name
 				callback "invalid" if callback?
 		catch e
-			winston.error "Failed to compile handler", name, e
+			winston.error "Failed to compile handler", name, e.message
 			callback "compile" if callback?
 
 unloadHandler = (name, callback) ->

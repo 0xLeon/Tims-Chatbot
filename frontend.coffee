@@ -45,11 +45,6 @@ app.get '/join/:id', (req, res) ->
 		else
 			res.send 200, 'OK'
 
-app.get '/shutdown', (req, res) ->
-	api.leaveChat ->
-		res.send 200, 'OK'
-		process.exit 0
-
 listen = -> app.listen config.port, config.ip
 
 removeRoute = (name) ->
@@ -58,6 +53,6 @@ removeRoute = (name) ->
 
 module.exports =
 	listen: listen
-	get: app.get
-	post: app.post
+	get: (path, callback) => app.get path, callback
+	post: (path, callback) => app.post path, callback
 	removeRoute: removeRoute

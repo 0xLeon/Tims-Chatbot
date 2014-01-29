@@ -22,6 +22,35 @@ handlers = require '../handlers'
 api = require '../api'
 winston = require 'winston'
 
+frontend = require '../frontend'
+
+commands = 
+	shutdown: (callback) ->
+		api.leaveChat ->
+			do callback if callback?
+			process.exit 0
+	load: (callback, parameters) -> handlers.loadHandler parameters, callback
+	unload: (callback, parameters) -> handlers.unloadHandler parameters, callback
+	loaded: (callback) -> callback handlers.getLoadedHandlers() if callback?
+
+frontend.get '/opserv/shutdown', (req, res) -> commands.shutdown -> res.send 200, 'OK'
+frontend.get '/opserv/load/:module', (req, res) -> 
+	commands.load (err) -> 
+		if err?
+			res.send 503, err
+		else
+			res.send 200, 'OK'
+	, req.params.module
+frontend.get '/opserv/unload/:module', (req, res) -> 
+	commands.unload (err) -> 
+		if err?
+			res.send 503, err
+		else
+			res.send 200, 'OK'
+	, req.params.module
+frontend.get '/opserv/loaded', (req, res) ->
+	commands.loaded (handlers) -> res.send 200, handlers.join ', '
+
 handle = (message, callback) ->
 	if message.message.substring(0, 1) isnt '?'
 		# ignore messages that don't start with a question mark
@@ -33,28 +62,34 @@ handle = (message, callback) ->
 	
 	switch command
 		when "shutdown"
-			api.leaveChat -> process.exit 0
+			do commands.shutdown
+		when "loaded"
+			commands.loaded (handlers) ->
+				api.sendMessage "These handlers are loaded: #{handlers.join ', '}", no, callback
 		when "load"
-			handlers.loadHandler parameters, (err) ->
+			commands.load (err) ->
 				if err?
 					api.sendMessage "Failed to load module #{parameters}", no, callback
 				else
 					api.sendMessage "Loaded module #{parameters}", no, callback
+			, parameters
+			
 		when "unload"
-			handlers.unloadHandler parameters, (err) ->
+			commands.unload (err) ->
 				if err?
 					api.sendMessage "Failed to unload module #{parameters}", no, callback
 				else
 					api.sendMessage "Unloaded module #{parameters}", no, callback
-		when "loaded"
-			api.sendMessage "These handlers are loaded: #{handlers.getLoadedHandlers().join ', '}", no, callback
+			, parameters
+			
 		else
 			winston.debug "[OpServ] Ignoring unknown command", command
 			do callback if callback?
+
 unload = (callback) ->
-	console.log "OPServ says goodbye"
-	do callback if callback?
-	
+	winston.error "panic() - Going nowhere without my opserv"
+	process.exit 1
+
 module.exports =
 	handle: handle
 	unload: unload
