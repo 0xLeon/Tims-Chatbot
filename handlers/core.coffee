@@ -27,14 +27,11 @@ userQueue = {}
 setInterval ->
 	_queue = userQueue
 	userQueue = {}
-	console.log _queue
 	
 	async.each (v for k, v of _queue), (user, callback) ->
 		addUser.run user.username, user.timestamp, user.userID
 		updateUser.run user.username, user.timestamp, user.userID
 		do callback
-	, ->
-		console.log "Processed queue", _queue
 , 5e3
 
 handleMessage = (message, callback) ->

@@ -51,4 +51,8 @@ process.on 'exit', ->
 	winston.debug 'Closing database'
 	do db.close
 
+db.getUserByUsername = (userID, callback) -> db.get "SELECT * FROM users WHERE lastUsername = ?", userID, callback
+db.hasPermissionByUserID = (userID, permission, callback) ->
+	db.get "SELECT COUNT(*) AS count FROM user_to_permission WHERE userID = ? AND permission = ?", userID, permission, callback
+
 module.exports = db

@@ -21,6 +21,7 @@ config = require '../config'
 handlers = require '../handlers'
 api = require '../api'
 winston = require 'winston'
+db = require '../db'
 
 frontend = require '../frontend'
 
@@ -73,7 +74,15 @@ handleMessage = (message, callback) ->
 				else
 					api.sendMessage "Loaded module #{parameters}", no, callback
 			, parameters
-			
+		when "getPermissions"
+			db.hasPermissionByUserID message.sender, 'opserv.getPermissions', (err, permission) ->
+				return unless permission > 0
+				
+				db.getUserByUsername parameters, (err, user) ->
+					if user?
+						api.sendMessage "#{user.lastUsername} (#{user.userID}) has the following permissions: ", no, callback
+					else
+						api.sendMessage "Could not find user #{parameters}", no, callback
 		when "unload"
 			commands.unload (err) ->
 				if err?
