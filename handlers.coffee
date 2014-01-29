@@ -27,22 +27,31 @@ loadHandlers = ->
 	loadHandler 'opserv'
 	async.each config.handlers, loadHandler, (err) ->
 		winston.info "Finished loading handlers"
+
 loadHandler = (name, callback) ->
 	winston.debug 'Loading handler:', name
 	if loadedHandlers[name]?
 		winston.warn "Trying to load loaded handler", #{name}
+		
+		callback "loaded" if callback?
 	else
-		loadedHandlers[name] = require './handlers/' + name
-		unless loadedHandlers[name].handle?
-			winston.error "Invalid handler, unloading:", name
-			unloadHandler name
-	
-	do callback if callback?
+		try
+			loadedHandlers[name] = require './handlers/' + name
+			if loadedHandlers[name].handle?
+				do callback if callback?
+			else
+				winston.error "Invalid handler, unloading:", name
+				unloadHandler name
+				callback "invalid" if callback?
+		catch e
+			winston.error "Failed to compile handler", name, e
+			callback "compile" if callback?
 
 unloadHandler = (name, callback) ->
+	winston.debug 'Unloading handler:', name
 	unless loadedHandlers[name]?
 		winston.warn "Trying to unload unloaded handler", name
-		do callback if callback?
+		callback "notLoaded" if callback?
 	else
 		if loadedHandlers[name].unload?
 			loadedHandlers[name].unload -> do callback if callback?
@@ -50,11 +59,10 @@ unloadHandler = (name, callback) ->
 			do callback if callback?
 		
 		delete loadedHandlers[name]
+
 handle = (message, callback) ->
-	async.applyEach (v.handle for k, v of loadedHandlers), message, ->
-		console.log "Everyone handled", message.message
-		callback()
-		
+	async.applyEach (v.handle for k, v of loadedHandlers), message, callback
+
 module.exports =
 	loadHandlers: loadHandlers
 	loadHandler: loadHandler

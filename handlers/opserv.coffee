@@ -16,10 +16,39 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###
 
+common = require '../common'
+config = require '../config'
+handlers = require '../handlers'
+api = require '../api'
+winston = require 'winston'
+
 handle = (message, callback) ->
-	console.log "OPServ likes message", message.message
-	do callback if callback?
+	if message.message.substring(0, 1) isnt '?'
+		# ignore messages that don't start with a question mark
+		do callback if callback?
+		return
 	
+	text = (message.message.substring 1).split /\s/
+	[ command, parameters ] = [ text.shift(), text.join ' ' ]
+	
+	switch command
+		when "shutdown"
+			api.leaveChat -> process.exit 0
+		when "load"
+			handlers.loadHandler parameters, (err) ->
+				if err?
+					api.sendMessage "Failed to load module #{parameters}", no, callback
+				else
+					api.sendMessage "Loaded module #{parameters}", no, callback
+		when "unload"
+			handlers.unloadHandler parameters, (err) ->
+				if err?
+					api.sendMessage "Failed to unload module #{parameters}", no, callback
+				else
+					api.sendMessage "Unloaded module #{parameters}", no, callback
+		else
+			winston.debug "[OpServ] Ignoring unknown command", command
+			do callback if callback?
 unload = (callback) ->
 	console.log "OPServ says goodbye"
 	do callback if callback?

@@ -61,4 +61,4 @@ api.fetchSecurityToken -> api.sendLoginRequest ->
 					async.each data.messages, (item, callback) ->
 						handlers.handle item, callback
 					, (err) ->
-						console.log "Handled each message"
+						#console.log "Handled each message"
