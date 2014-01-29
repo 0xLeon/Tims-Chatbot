@@ -17,13 +17,39 @@
 ###
 
 db = require '../db'
+async = require 'async'
 
 addUser = db.prepare "INSERT OR IGNORE INTO users (lastUsername, lastSeen, userID) VALUES (?, ?, ?);";
 updateUser = db.prepare "UPDATE users SET lastUsername = ?, lastSeen = ? WHERE userID = ?" 
 
-handle = (message, callback) ->
-	addUser.run message.username, Date.now(), message.sender
-	updateUser.run message.username, Date.now(), message.sender
+userQueue = {}
+
+setInterval ->
+	_queue = userQueue
+	userQueue = {}
+	console.log _queue
+	
+	async.each (v for k, v of _queue), (user, callback) ->
+		addUser.run user.username, user.timestamp, user.userID
+		updateUser.run user.username, user.timestamp, user.userID
+		do callback
+	, ->
+		console.log "Processed queue", _queue
+, 5e3
+
+handleMessage = (message, callback) ->
+	userQueue[message.sender] =
+		username: message.username
+		timestamp: Date.now()
+		userID: message.sender
+	
+	do callback if callback?
+
+handleUser = (user, callback) ->
+	userQueue[user.userID] =
+		username: user.username
+		timestamp: Date.now()
+		userID: user.userID
 	
 	do callback if callback?
 
@@ -32,5 +58,6 @@ unload = (callback) ->
 	process.exit 1
 
 module.exports =
-	handle: handle
+	handleMessage: handleMessage
+	handleUser: handleUser
 	unload: unload

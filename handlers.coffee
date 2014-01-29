@@ -48,7 +48,7 @@ loadHandler = (name, callback) ->
 	else
 		try
 			loadedHandlers[name] = require './handlers/' + name
-			if loadedHandlers[name].handle?
+			if loadedHandlers[name].handleMessage? and loadedHandlers[name].handleUser?
 				do callback if callback?
 			else
 				winston.error "Invalid handler, unloading:", name
@@ -78,8 +78,11 @@ unloadHandler = (name, callback) ->
 
 getLoadedHandlers = -> k for k of loadedHandlers
 
-handle = (message, callback) ->
-	async.applyEach (v.handle for k, v of loadedHandlers), message, callback
+handleMessage = (message, callback) ->
+	async.applyEach (v.handleMessage for k, v of loadedHandlers), message, callback
+
+handleUser = (user, callback) ->
+	async.applyEach (v.handleUser for k, v of loadedHandlers), user, callback
 
 
 module.exports =
@@ -87,4 +90,5 @@ module.exports =
 	loadHandler: loadHandler
 	unloadHandler: unloadHandler
 	getLoadedHandlers: getLoadedHandlers
-	handle: handle
+	handleMessage: handleMessage
+	handleUser: handleUser

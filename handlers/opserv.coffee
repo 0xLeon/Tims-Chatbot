@@ -51,7 +51,7 @@ frontend.get '/opserv/unload/:module', (req, res) ->
 frontend.get '/opserv/loaded', (req, res) ->
 	commands.loaded (handlers) -> res.send 200, handlers.join ', '
 
-handle = (message, callback) ->
+handleMessage = (message, callback) ->
 	if message.message.substring(0, 1) isnt '?'
 		# ignore messages that don't start with a question mark
 		do callback if callback?
@@ -91,5 +91,6 @@ unload = (callback) ->
 	process.exit 1
 
 module.exports =
-	handle: handle
+	handleMessage: handleMessage
+	handleUser: (user, callback) -> do callback if callback?
 	unload: unload

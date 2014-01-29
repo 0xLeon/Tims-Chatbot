@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###
 
-handle = (message, callback) ->
+handleMessage = (message, callback) ->
 	setTimeout ->
 		console.log "Games likes message", message.message
 		do callback if callback?
@@ -26,5 +26,6 @@ unload = (callback) ->
 	do callback if callback?
 	
 module.exports =
-	handle: handle
+	handleMessage: handleMessage
+	handleUser: (user, callback) -> do callback if callback?
 	unload: unload

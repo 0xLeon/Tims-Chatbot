@@ -66,6 +66,10 @@ api.fetchSecurityToken -> api.sendLoginRequest ->
 			api.sendMessage "I'm here!", yes, ->
 				api.recursiveFetchMessages (data) ->
 					async.each data.messages, (item, callback) ->
-						handlers.handle item, callback
+						handlers.handleMessage item, callback
+					, (err) ->
+						#console.log "Handled each message"
+					async.each data.users, (item, callback) ->
+						handlers.handleUser item, callback
 					, (err) ->
 						#console.log "Handled each message"
