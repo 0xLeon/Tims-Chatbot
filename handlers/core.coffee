@@ -17,7 +17,10 @@
 ###
 
 db = require '../db'
+common = require '../common'
+api = require '../api'
 async = require 'async'
+crypto = require 'crypto'
 
 addUser = db.prepare "INSERT OR IGNORE INTO users (lastUsername, lastSeen, userID) VALUES (?, ?, ?);";
 updateUser = db.prepare "UPDATE users SET lastUsername = ?, lastSeen = ? WHERE userID = ?" 
@@ -40,7 +43,14 @@ handleMessage = (message, callback) ->
 		timestamp: Date.now()
 		userID: message.sender
 	
-	do callback if callback?
+	if message.message is '!getPassword'
+		crypto.randomBytes 20, (ex, buf) ->
+			token = (buf.toString 'hex').substring 0, 20
+			db.run "UPDATE users SET password = ? WHERE userID = ?", token, message.sender
+			
+			api.sendMessage "/whisper #{message.username}, Your password is: #{token}", no, callback
+	else
+		do callback if callback?
 
 handleUser = (user, callback) ->
 	userQueue[user.userID] =

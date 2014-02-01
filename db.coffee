@@ -33,7 +33,7 @@ db.serialize ->
 		userID INT(10),
 		lastUsername VARCHAR(255) DEFAULT '',
 		lastSeen INT(10),
-		key CHAR(40) DEFAULT NULL,
+		password CHAR(20) DEFAULT NULL,
 		PRIMARY KEY(userID)
 	);"
 	db.run "CREATE TABLE IF NOT EXISTS user_to_permission (
@@ -51,7 +51,7 @@ process.on 'exit', ->
 	winston.debug 'Closing database'
 	do db.close
 
-db.getUserByUsername = (userID, callback) -> db.get "SELECT * FROM users WHERE lastUsername = ?", userID, callback
+db.getUserByUsername = (username, callback) -> db.get "SELECT * FROM users WHERE lastUsername = ?", username, callback
 db.hasPermissionByUserID = (userID, permission, callback) ->
 	db.get "SELECT COUNT(*) AS count FROM user_to_permission WHERE userID = ? AND permission = ?", userID, permission, callback
 

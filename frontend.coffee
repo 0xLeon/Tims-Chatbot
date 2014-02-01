@@ -21,6 +21,7 @@ config = require './config'
 api = require './api'
 handlers = require './handlers'
 winston = require 'winston'
+db = require './db'
 
 winston.info "Loading HTTP frontend"
 app = do express
@@ -29,6 +30,14 @@ app.set 'view engine', 'ejs'
 app.use (require 'connect-assets')
 	production: true
 	buildDir: 'derp'
+
+app.use express.basicAuth (user, pass, callback) ->
+	db.getUserByUsername user, (err, user) ->
+		if err?
+			callback err
+		else
+			callback null, user?.password is pass
+
 
 app.get '/', (req, res) ->
 	api.getRoomList (roomList) ->

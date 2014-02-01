@@ -25,3 +25,17 @@ module.exports =
 		else
 			winston.error message
 		process.exit 1
+	messageTypes:
+		NORMAL: 0,
+		JOIN: 1,
+		LEAVE: 2,
+		AWAY: 3,
+		BACK: 4,
+		MODERATE: 5,
+		ME: 6,
+		WHISPER: 7,
+		INFORMATION: 8,
+		CLEAR: 9,
+		TEAM: 10,
+		GLOBALMESSAGE: 11,
+		ATTACHMENT: 12
