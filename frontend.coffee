@@ -20,7 +20,9 @@ express = require 'express'
 config = require './config'
 api = require './api'
 handlers = require './handlers'
+winston = require 'winston'
 
+winston.info "Loading HTTP frontend"
 app = do express
 app.set 'views', "#{__dirname}/views"
 app.set 'view engine', 'ejs'
@@ -45,7 +47,9 @@ app.get '/join/:id', (req, res) ->
 		else
 			res.send 200, 'OK'
 
-listen = -> app.listen config.port, config.ip
+listen = ->
+	app.listen config.port, config.ip
+	winston.info "Frontend listening on #{config.ip}:#{config.port}"
 
 removeRoute = (name) ->
 	app.routes.get.splice k, 1 for v, k in app.routes.get when v.path is name if app.routes.get?
