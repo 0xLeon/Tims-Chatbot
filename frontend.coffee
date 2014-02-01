@@ -30,6 +30,9 @@ app.set 'view engine', 'ejs'
 app.use (require 'connect-assets')
 	production: true
 	buildDir: 'derp'
+app.use(express.cookieParser('keyboard cat'));
+app.use(express.session({ cookie: { maxAge: 60000 }}));
+app.use (require 'flashify')
 
 app.use express.basicAuth (user, pass, callback) ->
 	db.getUserByUsername user, (err, user) ->
@@ -45,6 +48,7 @@ app.get '/', (req, res) ->
 			config: config
 			roomList: roomList
 			loadedHandlers: do handlers.getLoadedHandlers
+			flashs: res.locals.flash
 
 app.get '/join/:id', (req, res) ->
 	unless /^[1-9][0-9]*$/.test req.params.id
@@ -54,7 +58,8 @@ app.get '/join/:id', (req, res) ->
 		if err?
 			res.send 503, err
 		else
-			res.send 200, 'OK'
+			req.flash 'success', 'Succesfully joined room'
+			res.redirect '/'
 
 listen = ->
 	app.listen config.port, config.ip

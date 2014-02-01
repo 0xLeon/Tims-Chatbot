@@ -15,6 +15,7 @@
 		"ejs": "*",
 		"less": "*",
 		"connect-assets": "*",
+		"flashify": "*",
 		"winston": "*",
 		"sqlite3": "~2.2"
 	},
