@@ -48,7 +48,7 @@ handleMessage = (message, callback) ->
 			token = (buf.toString 'hex').substring 0, 20
 			db.run "UPDATE users SET password = ? WHERE userID = ?", token, message.sender
 			
-			api.sendMessage "/whisper #{message.username}, Your password is: #{token}", no, callback
+			api.replyTo message, "Your password is: #{token}", no, callback
 	else
 		do callback if callback?
 

@@ -108,6 +108,8 @@ sendMessage = (message, enableSmilies = yes, callback) ->
 		t: config.securityToken
 	, -> do callback if callback?
 
+replyTo = (message, reply, enableSmilies = yes, callback) -> sendMessage "/whisper #{message.username}, #{reply}", enableSmilies, callback
+
 module.exports =
 	fetchSecurityToken: fetchSecurityToken
 	sendLoginRequest: sendLoginRequest
@@ -117,3 +119,4 @@ module.exports =
 	fetchMessages: fetchMessages
 	recursiveFetchMessages: recursiveFetchMessages
 	sendMessage: sendMessage
+	replyTo: replyTo
