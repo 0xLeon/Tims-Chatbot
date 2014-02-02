@@ -16,15 +16,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###
 
+winston = require 'winston'
+
 handleMessage = (message, callback) ->
-	setTimeout ->
-		console.log "Games likes message", message.message
-		do callback if callback?
-	, 5e3
-unload = (callback) ->
-	console.log "Games says goodbye"
+	winston.debug "[Log]", message.message
 	do callback if callback?
-	
+
+
+unload = (callback) -> do callback if callback?
 module.exports =
 	handleMessage: handleMessage
 	handleUser: (user, callback) -> do callback if callback?
