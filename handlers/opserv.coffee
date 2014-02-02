@@ -75,14 +75,15 @@ handleMessage = (message, callback) ->
 					api.sendMessage "Loaded module #{parameters}", no, callback
 			, parameters
 		when "getPermissions"
-			db.hasPermissionByUserID message.sender, 'opserv.getPermissions', (err, permission) ->
-				return unless permission > 0
-				
-				db.getUserByUsername parameters, (err, user) ->
-					if user?
-						api.sendMessage "#{user.lastUsername} (#{user.userID}) has the following permissions: ", no, callback
-					else
-						api.sendMessage "Could not find user #{parameters}", no, callback
+			db.checkPermissionByMessage message, 'opserv.getPermissions', (permission) ->
+				if permission
+					db.getUserByUsername parameters, (err, user) ->
+						if user?
+							api.sendMessage "#{user.lastUsername} (#{user.userID}) has the following permissions: ", no, callback
+						else
+							api.sendMessage "Could not find user #{parameters}", no, callback
+				else
+					do callback if callback?
 		when "unload"
 			commands.unload (err) ->
 				if err?
