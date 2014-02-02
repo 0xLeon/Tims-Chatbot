@@ -43,10 +43,7 @@ db.serialize ->
 		PRIMARY KEY(userID, permission),
 		FOREIGN KEY(userID) REFERENCES users(userID)
 	);"
-	do ->
-		stmt = db.prepare "INSERT OR IGNORE INTO bot (key, value) VALUES (?, ?);"
-		stmt.run 'firstStart', Date.now()
-		do stmt.finalize
+	db.run "INSERT OR IGNORE INTO bot (key, value) VALUES (?, ?);", 'firstStart', Date.now()
 
 process.on 'exit', ->
 	winston.debug 'Closing database'
