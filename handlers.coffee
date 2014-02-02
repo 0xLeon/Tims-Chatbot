@@ -78,9 +78,11 @@ unloadHandler = (name, callback) ->
 
 getLoadedHandlers = -> k for k of loadedHandlers
 
+# calls handleMessage of each handler and calls the callback after every handler handled it
 handleMessage = (message, callback) ->
 	async.applyEach (v.handleMessage for k, v of loadedHandlers), message, callback
 
+# calls handleUser of each handler and calls the callback after every handler handled it
 handleUser = (user, callback) ->
 	async.applyEach (v.handleUser for k, v of loadedHandlers), user, callback
 

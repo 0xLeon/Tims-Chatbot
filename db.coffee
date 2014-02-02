@@ -24,6 +24,7 @@ sqlite = (require 'sqlite3').verbose()
 
 db = new sqlite.Database config.database
 
+# creates default tables
 db.serialize ->
 	db.run "CREATE TABLE IF NOT EXISTS bot (
 		key VARCHAR(255),
@@ -49,7 +50,11 @@ process.on 'exit', ->
 	winston.debug 'Closing database'
 	do db.close
 
+# retrieves a user by the given username and calls the callback with the retrieved row
 db.getUserByUsername = (username, callback) -> db.get "SELECT * FROM users WHERE lastUsername = ?", username, callback
+
+# checks whether the user with the given userID has the given permission
+# and calls the callback with a boolean as the first parameter
 db.hasPermissionByUserID = (userID, permission, callback) ->
 	db.get "SELECT COUNT(*) AS count FROM user_to_permission WHERE userID = ? AND permission = ?", userID, permission, (err, row) ->
 		if err?
@@ -57,6 +62,7 @@ db.hasPermissionByUserID = (userID, permission, callback) ->
 		else
 			callback row.count > 0
 
+# See `hasPermissionByUserID`, additionally whispers the user if he lacks permissions
 db.checkPermissionByMessage = (message, permission, callback) ->
 	db.hasPermissionByUserID message.sender, permission, (err, row) ->
 		if err?

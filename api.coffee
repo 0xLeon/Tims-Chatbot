@@ -20,6 +20,8 @@ common = require './common'
 config = require './config'
 winston = require 'winston'
 
+# attempts to retrieve the current security token
+# calls the callback without parameters afterwards
 fetchSecurityToken = (callback) ->
 	winston.debug "Fetching security token..."
 	common.request.get config.host + '/index.php', (err, res, body) ->
@@ -27,7 +29,9 @@ fetchSecurityToken = (callback) ->
 		common.fatal 'Unable to find security token in source' unless [_, config.securityToken] = body.match /var SECURITY_TOKEN = '([a-f0-9]{40})';/
 		winston.debug "Done, Security token is:", config.securityToken
 		do callback if callback?
-		
+
+# attempts to login the user, will save the userID in config.userID
+# calls the callback without parameters afterwards
 sendLoginRequest = (callback) ->
 	winston.debug "Logging in as #{config.username}..."
 	common.request.post config.host + '/index.php/Login/', 
@@ -42,6 +46,9 @@ sendLoginRequest = (callback) ->
 		
 		do callback if callback?
 
+# attempts to join the room with the given roomID
+# calls the callback without parameters if everything was successful
+# and with a string as the first parameter when something failed
 joinRoom = (roomID, callback) ->
 	winston.debug "Joining room #{roomID}"
 	common.request.post config.host + '/index.php/AJAXProxy/',
@@ -64,6 +71,8 @@ joinRoom = (roomID, callback) ->
 			winston.debug "Done, room title is", data.title
 			do callback if callback?
 
+# retrieves the roomlist and calls the callback with the roomList as
+# first parameter afterwards
 getRoomList = (callback) ->
 	winston.debug "Fetching roomlist..."
 	common.request.post config.host + '/index.php/AJAXProxy/',
@@ -76,6 +85,8 @@ getRoomList = (callback) ->
 		winston.info "Found #{roomList.length} rooms"
 		callback roomList if callback?
 
+# Leaves the chat
+# calls the callback without parameters afterwards
 leaveChat = (callback) ->
 	winston.info "Leaving chat..."
 	common.request.post config.host + '/index.php/AJAXProxy/',
@@ -85,12 +96,14 @@ leaveChat = (callback) ->
 		t: config.securityToken
 	, -> do callback if callback?
 
+# Fetches new messages and calls the callback with the retrieved data object
 fetchMessages = (callback) ->
 	common.request.get config.host + 'index.php/NewMessages/', (err, res, body) ->
 		data = JSON.parse body
 		
 		callback data if callback?
-		
+
+# Permanently fetches messages with a delay of half a second between requests
 recursiveFetchMessages = (callback) ->
 	fetchMessages (data) ->
 		callback data if callback
@@ -98,6 +111,8 @@ recursiveFetchMessages = (callback) ->
 			recursiveFetchMessages callback
 		, 5e2
 
+# sends a message with `message` as the content and the given
+# smiley status and calls the callback without any parameters afterwards
 sendMessage = (message, enableSmilies = yes, callback) ->
 	common.request.post config.host + '/index.php/AJAXProxy/',
 	form:
@@ -108,6 +123,7 @@ sendMessage = (message, enableSmilies = yes, callback) ->
 		t: config.securityToken
 	, -> do callback if callback?
 
+# replies (i.e. whispers to the sender) to the given message. See `sendMessage`
 replyTo = (message, reply, enableSmilies = yes, callback) -> sendMessage "/whisper #{message.username}, #{reply}", enableSmilies, callback
 
 module.exports =
