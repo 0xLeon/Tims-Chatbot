@@ -54,14 +54,17 @@ process.on 'exit', ->
 
 db.getUserByUsername = (username, callback) -> db.get "SELECT * FROM users WHERE lastUsername = ?", username, callback
 db.hasPermissionByUserID = (userID, permission, callback) ->
-	db.get "SELECT COUNT(*) AS count FROM user_to_permission WHERE userID = ? AND permission = ?", userID, permission, callback
+	db.get "SELECT COUNT(*) AS count FROM user_to_permission WHERE userID = ? AND permission = ?", userID, permission, (err, row) ->
+		if err?
+			winston.error "Error while checking permissions", err
+		else
+			callback row.count > 0
 
 db.checkPermissionByMessage = (message, permission, callback) ->
 	db.hasPermissionByUserID message.sender, permission, (err, row) ->
 		if err?
 			winston.error "Error while checking permissions", err
 		else
-			console.log row
 			if row.count > 0
 				callback yes
 			else
