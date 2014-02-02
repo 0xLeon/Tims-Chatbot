@@ -41,12 +41,12 @@ common.request = request
 
 config.port ?= 9001
 config.ip ?= '0.0.0.0'
+config.enableFrontend ?= yes
+config.database ?= __dirname + '/storage.sqlite3'
 
 config.securityToken = ''
 config.userID = null
 config.upSince = new Date()
-config.enableFrontend = yes
-config.database = __dirname + '/storage.sqlite3'
 
 db = require './db'
 api = require './api'
