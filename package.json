@@ -1,15 +1,19 @@
 {
 	"name": "be.bastelstu.chat.bot",
-	"description": "",
+	"description": "Chatbot for Tims Chat 3",
 	"homepage": "https://github.com/wbbaddons/Tims-Chatbot",
 	"keywords": [
 		"woltlab community framework"
 	],
-	"author": "Tim Düsterhus <timwolla@bastelstu.be>",
+	"author": "Tim Düsterhus <tim@bastelstu.be>",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wbbaddons/Tims-Chatbot.git"
+	},
 	"dependencies": {
 		"express": "~3",
 		"async": ">=0.2",
-		"coffee-script": ">=1.4",
+		"coffee-script": "~1.7",
 		"request": "~2.33",
 		"tough-cookie": "*",
 		"ejs": "*",
