@@ -1,3 +1,4 @@
+
 ###
 # Chatbot for Tim's Chat 3
 # Copyright (C) 2011 - 2014 Tim Düsterhus
@@ -98,7 +99,7 @@ leaveChat = (callback) ->
 
 # Fetches new messages and calls the callback with the retrieved data object
 fetchMessages = (callback) ->
-	common.request.get config.host + 'index.php/NewMessages/', (err, res, body) ->
+	common.request.get config.host + '/index.php/NewMessages/', (err, res, body) ->
 		data = JSON.parse body
 		
 		callback data if callback?
