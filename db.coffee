@@ -51,25 +51,30 @@ process.on 'exit', ->
 	do db.close
 
 # retrieves a user by the given username and calls the callback with the retrieved row
-db.getUserByUsername = (username, callback) -> db.get "SELECT * FROM users WHERE lastUsername = ?", username, callback
+do ->
+	query = db.prepare "SELECT * FROM users WHERE lastUsername = ?"
+	db.getUserByUsername = (username, callback) -> query.get username, callback
 
 # retrieves all permissions the given user has
-db.getPermissionsByUserID = (userID, callback) ->
-	db.all "SELECT permission FROM user_to_permission WHERE userID = ?", userID, (err, rows) ->
-		console.log rows
-		if err?
-			winston.error "Error while checking permissions", err
-		else
-			callback rows
+do ->
+	query = db.prepare "SELECT permission FROM user_to_permission WHERE userID = ?"
+	db.getPermissionsByUserID = (userID, callback) ->
+		query.all userID, (err, rows) ->
+			if err?
+				winston.error "Error while checking permissions", err
+			else
+				callback rows
 
 # checks whether the user with the given userID has the given permission
 # and calls the callback with a boolean as the first parameter
-db.hasPermissionByUserID = (userID, permission, callback) ->
-	db.get "SELECT COUNT(*) AS count FROM user_to_permission WHERE userID = ? AND permission = ?", userID, permission, (err, row) ->
-		if err?
-			winston.error "Error while checking permissions", err
-		else
-			callback row.count > 0
+do ->
+	query = db.prepare "SELECT COUNT(*) AS count FROM user_to_permission WHERE userID = ? AND permission = ?"
+	db.hasPermissionByUserID = (userID, permission, callback) ->
+		query.get userID, permission, (err, row) ->
+			if err?
+				winston.error "Error while checking permissions", err
+			else
+				callback row.count > 0
 
 # See `hasPermissionByUserID`, additionally whispers the user if he lacks permissions
 db.checkPermissionByMessage = (message, permission, callback) ->
