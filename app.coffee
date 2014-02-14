@@ -39,6 +39,8 @@ process.title = "Chatbot (#{config.host})"
 common = require './common'
 common.request = request
 
+config.host = config.host.replace /\/+$/, ''
+
 config.port ?= 9001
 config.ip ?= '0.0.0.0'
 config.enableFrontend ?= yes
