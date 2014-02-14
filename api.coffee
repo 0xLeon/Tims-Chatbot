@@ -100,7 +100,11 @@ leaveChat = (callback) ->
 # Fetches new messages and calls the callback with the retrieved data object
 fetchMessages = (callback) ->
 	common.request.get config.host + '/index.php/NewMessages/', (err, res, body) ->
-		data = JSON.parse body
+		try
+			data = JSON.parse body
+		catch e
+			winston.error "Invalid JSON returned by NewMessages", body
+			process.exit 1
 		
 		callback data if callback?
 
