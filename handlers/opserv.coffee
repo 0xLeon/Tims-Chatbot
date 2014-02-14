@@ -22,6 +22,7 @@ handlers = require '../handlers'
 api = require '../api'
 winston = require 'winston'
 db = require '../db'
+{ __, __n } = require 'i18n'
 
 frontend = require '../frontend'
 
@@ -71,16 +72,16 @@ handleMessage = (message, callback) ->
 		when "loaded"
 			db.checkAnyPermissionByMessage message, [ 'opserv.load', 'opserv.unload' ], (hasPermission) ->
 				if hasPermission
-					commands.loaded (handlers) -> api.sendMessage "These handlers are loaded: #{handlers.join ', '}", no, callback
+					commands.loaded (handlers) -> api.sendMessage __("These handlers are loaded: %s", handlers.join ', '), no, callback
 				else
 					callback?()
 		when "load"
 			commands.load (err) ->
-				api.replyTo message, (if err? then "Failed to load module #{parameters}" else "Loaded module #{parameters}"), no, callback
+				api.replyTo message, (if err? then __("Failed to load module %s", parameters) else __("Loaded module %s", parameters)), no, callback
 			, parameters
 		when "unload"
 			commands.unload (err) ->
-				api.replyTo message, (if err? then "Failed to unload module #{parameters}" else "Unloaded module #{parameters}"), no, callback
+				api.replyTo message, (if err? then __("Failed to unload module %s", parameters) else __("Unloaded module %s", parameters)), no, callback
 			, parameters
 		when "setPermission"
 			db.checkPermissionByMessage message, 'opserv.setPermission', (hasPermission) ->
@@ -90,9 +91,9 @@ handleMessage = (message, callback) ->
 					db.getUserByUsername username.trim(), (err, user) ->
 						if user?
 							db.givePermissionToUserID user.userID, permission.join('').trim(), (rows) ->
-								api.replyTo message, "Gave #{permission} to #{username}", no, callback
+								api.replyTo message, __("Gave {{permission}} to “{{username}}”", { permission: permission, username: username }), no, callback
 						else
-							api.replyTo message, "Could not find user „#{username}“", no, callback
+							api.replyTo message, __("Could not find user “%s”", username), no, callback
 				else
 					# We trust you have received the usual lecture from the local System
 					# Administrator. It usually boils down to these three things:
@@ -109,9 +110,9 @@ handleMessage = (message, callback) ->
 					db.getUserByUsername parameters, (err, user) ->
 						if user?
 							db.getPermissionsByUserID user.userID, (rows) ->
-								api.replyTo message, "#{user.lastUsername} (#{user.userID}) has the following permissions: #{(row.permission for row in rows).join ', '}", no, callback
+								api.replyTo message, __('“%1$s” (%2$s) has these permissions: %3$s', user.lastUsername, user.userID, (row.permission for row in rows).join ', '), no, callback
 						else
-							api.replyTo message, "Could not find user „#{parameters}“", no, callback
+							api.replyTo message, __("Could not find user “%s”", parameters), no, callback
 				else
 					callback?()
 		else

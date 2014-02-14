@@ -22,6 +22,7 @@ api = require '../api'
 async = require 'async'
 crypto = require 'crypto'
 config = require '../config'
+{ __, __n } = require 'i18n'
 
 addUser = db.prepare "INSERT OR IGNORE INTO users (lastUsername, lastSeen, userID) VALUES (?, ?, ?);";
 updateUser = db.prepare "UPDATE users SET lastUsername = ?, lastSeen = ? WHERE userID = ?" 
@@ -49,7 +50,7 @@ handleMessage = (message, callback) ->
 			token = (buf.toString 'hex').substring 0, 20
 			db.run "UPDATE users SET password = ? WHERE userID = ?", token, message.sender
 			
-			api.replyTo message, "Your password is: #{token}", no, callback
+			api.replyTo message, __("Your password is: %s", token), no, callback
 	else
 		callback?()
 
