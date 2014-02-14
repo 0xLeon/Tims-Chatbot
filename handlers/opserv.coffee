@@ -63,10 +63,17 @@ handleMessage = (message, callback) ->
 	
 	switch command
 		when "shutdown"
-			do commands.shutdown
+			db.checkPermissionByMessage message, 'opserv.shutdown', (permission) ->
+				if permission
+					do commands.shutdown
+				else
+					do callback if callback?
 		when "loaded"
-			commands.loaded (handlers) ->
-				api.sendMessage "These handlers are loaded: #{handlers.join ', '}", no, callback
+			db.checkAnyPermissionByMessage message, [ 'opserv.load', 'opserv.unload' ], (permission) ->
+				if permission
+					commands.loaded (handlers) -> api.sendMessage "These handlers are loaded: #{handlers.join ', '}", no, callback
+				else
+					do callback if callback?
 		when "load"
 			commands.load (err) ->
 				if err?
@@ -79,7 +86,8 @@ handleMessage = (message, callback) ->
 				if permission
 					db.getUserByUsername parameters, (err, user) ->
 						if user?
-							api.sendMessage "#{user.lastUsername} (#{user.userID}) has the following permissions: ", no, callback
+							db.getPermissionsByUserID user.userID, (rows) ->
+								api.sendMessage "#{user.lastUsername} (#{user.userID}) has the following permissions: #{(row.permission for row in rows).join ', '}", no, callback
 						else
 							api.sendMessage "Could not find user #{parameters}", no, callback
 				else

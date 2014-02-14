@@ -53,6 +53,15 @@ process.on 'exit', ->
 # retrieves a user by the given username and calls the callback with the retrieved row
 db.getUserByUsername = (username, callback) -> db.get "SELECT * FROM users WHERE lastUsername = ?", username, callback
 
+# retrieves all permissions the given user has
+db.getPermissionsByUserID = (userID, callback) ->
+	db.all "SELECT permission FROM user_to_permission WHERE userID = ?", userID, (err, rows) ->
+		console.log rows
+		if err?
+			winston.error "Error while checking permissions", err
+		else
+			callback rows
+
 # checks whether the user with the given userID has the given permission
 # and calls the callback with a boolean as the first parameter
 db.hasPermissionByUserID = (userID, permission, callback) ->
@@ -64,13 +73,43 @@ db.hasPermissionByUserID = (userID, permission, callback) ->
 
 # See `hasPermissionByUserID`, additionally whispers the user if he lacks permissions
 db.checkPermissionByMessage = (message, permission, callback) ->
-	db.hasPermissionByUserID message.sender, permission, (err, row) ->
+	db.hasPermissionByUserID message.sender, permission, (result) ->
+		if result
+			callback yes
+		else
+			api.replyTo message, "Permission denied. You lack the required permission: #{permission}", no, -> callback no
+
+# Check whether the user with the given userID has all the given permissions
+db.hasAllPermissionsByUserID = (userID, permissions, callback) ->
+	db.get "SELECT COUNT(*) AS count FROM user_to_permission WHERE userID = ? AND permission IN (#{('?' for [0...permissions.length]).join(',')})", userID, permissions..., (err, row) ->
 		if err?
 			winston.error "Error while checking permissions", err
 		else
-			if row.count > 0
-				callback yes
-			else
-				api.replyTo message, "Permission denied. You lack the required permission: #{permission}", no, -> callback no
+			callback row.count is permissions.length
+
+# Check whether the user with the given userID has any of the given permissions
+db.hasAnyPermissionByUserID = (userID, permissions, callback) ->
+	db.get "SELECT COUNT(*) AS count FROM user_to_permission WHERE userID = ? AND permission IN (#{('?' for [0...permissions.length]).join(',')})", userID, permissions..., (err, row) ->
+		if err?
+			winston.error "Error while checking permissions", err
+		else
+			callback row.count > 0
+
+# See `hasAllPermissionsByUserID`, additionally whispers the user if he lacks permissions
+db.checkAllPermissionsByMessage = (message, permissions, callback) ->
+	db.hasAllPermissionsByUserID message.sender, permissions, (result) ->
+		if result
+			callback yes
+		else
+			api.replyTo message, "Permission denied. You lack some of the required permissions: #{permissions.join ', '}", no, -> callback no
+
+# See `hasAnyPermissionsByUserID`, additionally whispers the user if he lacks permissions
+db.checkAnyPermissionByMessage = (message, permissions, callback) ->
+	db.hasAnyPermissionByUserID message.sender, permissions, (result) ->
+		if result
+			callback yes
+		else
+			api.replyTo message, "Permission denied. You lack all the required permissions: #{permissions.join ', '}", no, -> callback no
+
 
 module.exports = db
