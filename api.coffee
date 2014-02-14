@@ -29,7 +29,7 @@ fetchSecurityToken = (callback) ->
 		common.fatal 'Cannot fetch security token:', err if err?
 		common.fatal 'Unable to find security token in source' unless [_, config.securityToken] = body.match /var SECURITY_TOKEN = '([a-f0-9]{40})';/
 		winston.debug "Done, Security token is:", config.securityToken
-		do callback if callback?
+		callback?()
 
 # attempts to login the user, will save the userID in config.userID
 # calls the callback without parameters afterwards
@@ -45,7 +45,7 @@ sendLoginRequest = (callback) ->
 		common.fatal 'Login unsuccessful' if (not [_, userID] = body.match /WCF\.User\.init\((\d+), '/) or (config.userID = parseInt userID) is 0
 		winston.info 'Logged in as userID', config.userID
 		
-		do callback if callback?
+		callback?()
 
 # attempts to join the room with the given roomID
 # calls the callback without parameters if everything was successful
@@ -70,7 +70,7 @@ joinRoom = (roomID, callback) ->
 				process.exit 1
 		else
 			winston.debug "Done, room title is", data.title
-			do callback if callback?
+			callback?()
 
 # retrieves the roomlist and calls the callback with the roomList as
 # first parameter afterwards
@@ -95,7 +95,7 @@ leaveChat = (callback) ->
 		actionName: 'leave'
 		className: 'chat\\data\\room\\RoomAction'
 		t: config.securityToken
-	, -> do callback if callback?
+	, -> callback?()
 
 # Fetches new messages and calls the callback with the retrieved data object
 fetchMessages = (callback) ->
@@ -126,7 +126,7 @@ sendMessage = (message, enableSmilies = yes, callback) ->
 		'parameters[text]': message
 		'parameters[enableSmilies]': if enableSmilies then 1 else 0
 		t: config.securityToken
-	, -> do callback if callback?
+	, -> callback?()
 
 # replies (i.e. whispers to the sender) to the given message. See `sendMessage`
 replyTo = (message, reply, enableSmilies = yes, callback) -> sendMessage "/whisper #{message.username}, #{reply}", enableSmilies, callback

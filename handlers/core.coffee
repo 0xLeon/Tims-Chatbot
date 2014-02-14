@@ -51,7 +51,7 @@ handleMessage = (message, callback) ->
 			
 			api.replyTo message, "Your password is: #{token}", no, callback
 	else
-		do callback if callback?
+		callback?()
 
 handleUser = (user, callback) ->
 	userQueue[user.userID] =
@@ -59,7 +59,7 @@ handleUser = (user, callback) ->
 		timestamp: Date.now()
 		userID: user.userID
 	
-	do callback if callback?
+	callback?()
 
 unload = (callback) ->
 	winston.error "panic() - Going nowhere without my core"

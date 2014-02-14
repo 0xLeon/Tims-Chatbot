@@ -20,11 +20,11 @@ winston = require 'winston'
 
 handleMessage = (message, callback) ->
 	winston.debug "[Log]", message.message
-	do callback if callback?
+	callback?()
 
 
-unload = (callback) -> do callback if callback?
+unload = (callback) -> callback?()
 module.exports =
 	handleMessage: handleMessage
-	handleUser: (user, callback) -> do callback if callback?
+	handleUser: (user, callback) -> callback?()
 	unload: unload

@@ -28,7 +28,7 @@ frontend = require '../frontend'
 commands = 
 	shutdown: (callback) ->
 		api.leaveChat ->
-			do callback if callback?
+			callback?()
 			process.exit 0
 	load: (callback, parameters) -> handlers.loadHandler parameters, callback
 	unload: (callback, parameters) -> handlers.unloadHandler parameters, callback
@@ -55,7 +55,7 @@ frontend.get '/opserv/loaded', (req, res) ->
 handleMessage = (message, callback) ->
 	if message.message.substring(0, 1) isnt '?'
 		# ignore messages that don't start with a question mark
-		do callback if callback?
+		callback?()
 		return
 	
 	text = (message.message.substring 1).split /\s/
@@ -67,13 +67,13 @@ handleMessage = (message, callback) ->
 				if permission
 					do commands.shutdown
 				else
-					do callback if callback?
+					callback?()
 		when "loaded"
 			db.checkAnyPermissionByMessage message, [ 'opserv.load', 'opserv.unload' ], (hasPermission) ->
 				if hasPermission
 					commands.loaded (handlers) -> api.sendMessage "These handlers are loaded: #{handlers.join ', '}", no, callback
 				else
-					do callback if callback?
+					callback?()
 		when "load"
 			commands.load (err) ->
 				api.replyTo message, (if err? then "Failed to load module #{parameters}" else "Loaded module #{parameters}"), no, callback
@@ -102,7 +102,7 @@ handleMessage = (message, callback) ->
 					#    #3) With great power comes great responsibility.
 					#
 					# This incident will be reported.
-					do callback if callback?
+					callback?()
 		when "getPermissions"
 			db.checkAnyPermissionByMessage message, [ 'opserv.setPermission', 'opserv.getPermissions' ], (hasPermission) ->
 				if hasPermission
@@ -113,10 +113,10 @@ handleMessage = (message, callback) ->
 						else
 							api.replyTo message, "Could not find user „#{parameters}“", no, callback
 				else
-					do callback if callback?
+					callback?()
 		else
 			winston.debug "[OpServ] Ignoring unknown command", command
-			do callback if callback?
+			callback?()
 
 unload = (callback) ->
 	winston.error "panic() - Going nowhere without my opserv"
@@ -124,5 +124,5 @@ unload = (callback) ->
 
 module.exports =
 	handleMessage: handleMessage
-	handleUser: (user, callback) -> do callback if callback?
+	handleUser: (user, callback) -> callback?()
 	unload: unload

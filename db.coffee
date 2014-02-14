@@ -84,7 +84,7 @@ do ->
 			if err?
 				winston.error "Error while giving permission", err
 			else
-				do callback if callback?
+				callback?()
 
 # See `hasPermissionByUserID`, additionally whispers the user if he lacks permissions
 db.checkPermissionByMessage = (message, permission, callback) ->
