@@ -76,10 +76,11 @@ handleMessage = (message, callback) ->
 					do callback if callback?
 		when "load"
 			commands.load (err) ->
-				if err?
-					api.sendMessage "Failed to load module #{parameters}", no, callback
-				else
-					api.sendMessage "Loaded module #{parameters}", no, callback
+				api.replyTo message, (if err? then "Failed to load module #{parameters}" else "Loaded module #{parameters}"), no, callback
+			, parameters
+		when "unload"
+			commands.unload (err) ->
+				api.replyTo message, (if err? then "Failed to unload module #{parameters}" else "Unloaded module #{parameters}"), no, callback
 			, parameters
 		when "getPermissions"
 			db.checkPermissionByMessage message, 'opserv.getPermissions', (permission) ->
@@ -87,19 +88,11 @@ handleMessage = (message, callback) ->
 					db.getUserByUsername parameters, (err, user) ->
 						if user?
 							db.getPermissionsByUserID user.userID, (rows) ->
-								api.sendMessage "#{user.lastUsername} (#{user.userID}) has the following permissions: #{(row.permission for row in rows).join ', '}", no, callback
+								api.replyTo message, "#{user.lastUsername} (#{user.userID}) has the following permissions: #{(row.permission for row in rows).join ', '}", no, callback
 						else
-							api.sendMessage "Could not find user #{parameters}", no, callback
+							api.replyTo message, "Could not find user „#{parameters}“", no, callback
 				else
 					do callback if callback?
-		when "unload"
-			commands.unload (err) ->
-				if err?
-					api.sendMessage "Failed to unload module #{parameters}", no, callback
-				else
-					api.sendMessage "Unloaded module #{parameters}", no, callback
-			, parameters
-			
 		else
 			winston.debug "[OpServ] Ignoring unknown command", command
 			do callback if callback?
