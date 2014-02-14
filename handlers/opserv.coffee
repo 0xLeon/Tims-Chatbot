@@ -63,14 +63,14 @@ handleMessage = (message, callback) ->
 	
 	switch command
 		when "shutdown"
-			db.checkPermissionByMessage message, 'opserv.shutdown', (permission) ->
+			db.checkPermissionByMessage message, 'opserv.shutdown', (hasPermission) ->
 				if permission
 					do commands.shutdown
 				else
 					do callback if callback?
 		when "loaded"
-			db.checkAnyPermissionByMessage message, [ 'opserv.load', 'opserv.unload' ], (permission) ->
-				if permission
+			db.checkAnyPermissionByMessage message, [ 'opserv.load', 'opserv.unload' ], (hasPermission) ->
+				if hasPermission
 					commands.loaded (handlers) -> api.sendMessage "These handlers are loaded: #{handlers.join ', '}", no, callback
 				else
 					do callback if callback?
@@ -82,9 +82,30 @@ handleMessage = (message, callback) ->
 			commands.unload (err) ->
 				api.replyTo message, (if err? then "Failed to unload module #{parameters}" else "Unloaded module #{parameters}"), no, callback
 			, parameters
+		when "setPermission"
+			db.checkPermissionByMessage message, 'opserv.setPermission', (hasPermission) ->
+				if hasPermission
+					[ username, permission... ] = parameters.split /,/
+					
+					db.getUserByUsername username.trim(), (err, user) ->
+						if user?
+							db.givePermissionToUserID user.userID, permission.join('').trim(), (rows) ->
+								api.replyTo message, "Gave #{permission} to #{username}", no, callback
+						else
+							api.replyTo message, "Could not find user „#{username}“", no, callback
+				else
+					# We trust you have received the usual lecture from the local System
+					# Administrator. It usually boils down to these three things:
+					#
+					#    #1) Respect the privacy of others.
+					#    #2) Think before you type.
+					#    #3) With great power comes great responsibility.
+					#
+					# This incident will be reported.
+					do callback if callback?
 		when "getPermissions"
-			db.checkPermissionByMessage message, 'opserv.getPermissions', (permission) ->
-				if permission
+			db.checkAnyPermissionByMessage message, [ 'opserv.setPermission', 'opserv.getPermissions' ], (hasPermission) ->
+				if hasPermission
 					db.getUserByUsername parameters, (err, user) ->
 						if user?
 							db.getPermissionsByUserID user.userID, (rows) ->

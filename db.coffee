@@ -76,6 +76,16 @@ do ->
 			else
 				callback row.count > 0
 
+# Gives the permission to the user with the given userID
+do ->
+	query = db.prepare "INSERT OR IGNORE INTO user_to_permission (userID, permission) VALUES (?, ?)"
+	db.givePermissionToUserID = (userID, permission, callback) ->
+		query.run userID, permission, (err, row) ->
+			if err?
+				winston.error "Error while giving permission", err
+			else
+				do callback if callback?
+
 # See `hasPermissionByUserID`, additionally whispers the user if he lacks permissions
 db.checkPermissionByMessage = (message, permission, callback) ->
 	db.hasPermissionByUserID message.sender, permission, (result) ->
