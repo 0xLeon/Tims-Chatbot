@@ -21,7 +21,8 @@
 		"connect-assets": "*",
 		"flashify": "*",
 		"winston": "*",
-		"sqlite3": "~2.2"
+		"sqlite3": "~2.2",
+		"i18n": "~0.4"
 	},
 	"scripts": {
 		"prestart": "npm install",

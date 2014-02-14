@@ -46,9 +46,16 @@ config.ip ?= '0.0.0.0'
 config.enableFrontend ?= yes
 config.database ?= __dirname + '/storage.sqlite3'
 
+config.locale ?= 'en'
+
 config.securityToken = ''
 config.userID = null
 config.upSince = new Date()
+
+i18n = require 'i18n'
+i18n.configure
+	directory: __dirname + '/locales'
+i18n.setLocale config.locale
 
 db = require './db'
 api = require './api'
@@ -68,7 +75,7 @@ api.fetchSecurityToken -> api.sendLoginRequest ->
 		
 		api.joinRoom roomList[0].roomID, ->
 			do handlers.loadHandlers
-			api.sendMessage "I'm here!", yes, ->
+			api.sendMessage i18n.__("I'm here!"), yes, ->
 				api.recursiveFetchMessages (data) ->
 					async.each data.messages, (item, callback) ->
 						handlers.handleMessage item, callback
