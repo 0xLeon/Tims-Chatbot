@@ -65,7 +65,7 @@ handleMessage = (message, callback) ->
 	switch command
 		when "shutdown"
 			db.checkPermissionByMessage message, 'opserv.shutdown', (hasPermission) ->
-				if permission
+				if hasPermission
 					do commands.shutdown
 				else
 					callback?()
