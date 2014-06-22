@@ -91,7 +91,7 @@ handleMessage = (message, callback) ->
 					db.getUserByUsername username.trim(), (err, user) ->
 						if user?
 							db.givePermissionToUserID user.userID, permission.join('').trim(), (rows) ->
-								api.replyTo message, __("Gave {{permission}} to “{{username}}”", { permission: permission, username: username }), no, callback
+								api.replyTo message, __("Gave %1$s to “%2$s”", permission, username), no, callback
 						else
 							api.replyTo message, __("Could not find user “%s”", username), no, callback
 				else
