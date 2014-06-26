@@ -21,6 +21,7 @@ config = require '../config'
 handlers = require '../handlers'
 api = require '../api'
 winston = require 'winston'
+debug = (require 'debug')('Chatbot:handlers:opserv')
 db = require '../db'
 { __, __n } = require '../i18n'
 
@@ -121,7 +122,7 @@ handleMessage = (message, callback) ->
 				else
 					callback?()
 		else
-			winston.debug "[OpServ] Ignoring unknown command", command
+			debug "Ignoring unknown command #{command}"
 			callback?()
 
 unload = (callback) ->
