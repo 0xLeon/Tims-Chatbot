@@ -20,6 +20,7 @@ express = require 'express'
 config = require './config'
 api = require './api'
 handlers = require './handlers'
+debug = (require 'debug')('Chatbot:frontend')
 winston = require 'winston'
 db = require './db'
 
@@ -30,16 +31,25 @@ app.set 'view engine', 'ejs'
 app.use (require 'connect-assets')
 	production: true
 	buildDir: 'derp'
-app.use(express.cookieParser('keyboard cat'));
-app.use(express.session({ cookie: { maxAge: 60000 }}));
+app.use (require 'express-session')( secret: 'keyboard cat')
 app.use (require 'flashify')
 
-app.use express.basicAuth (user, pass, callback) ->
-	db.getUserByUsername user, (err, user) ->
-		if err?
-			callback err
-		else
-			callback null, user?.password is pass
+do ->
+	auth = require 'basic-auth'
+	app.use (req, res, next) ->
+		user = auth req
+		unless user?
+			res.setHeader 'WWW-Authenticate', 'Basic realm="Restricted"'
+			res.send 401, '401'
+			return
+		
+		{name,pass} = user
+		db.getUserByUsername name, (err, user) ->
+			if err? or user?.password isnt pass
+				res.setHeader 'WWW-Authenticate', 'Basic realm="Restricted"'
+				res.send 401, '401'
+			else
+				do next
 
 
 app.get '/', (req, res) ->

@@ -11,7 +11,11 @@
 		"url": "https://github.com/wbbaddons/Tims-Chatbot.git"
 	},
 	"dependencies": {
-		"express": "~3",
+		"express": "~4",
+		"cookie-parser": "~1.3",
+		"express-session": "~1.5",
+		"basic-auth": "*",
+		"debug": "*",
 		"async": ">=0.2",
 		"coffee-script": "~1.7",
 		"request": "~2.33",

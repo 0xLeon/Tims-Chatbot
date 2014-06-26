@@ -19,6 +19,7 @@
 common = require './common'
 config = require './config'
 winston = require 'winston'
+debug = (require 'debug')('Chatbot:handlers')
 async = require 'async'
 
 loadedHandlers = {}
@@ -34,7 +35,7 @@ loadHandlers = ->
 		winston.info "Finished loading handlers"
 
 loadHandler = (name, callback) ->
-	winston.debug 'Loading handler:', name
+	debug "Loading handler: #{name}"
 	
 	unless /^[a-z]+$/.test name
 		winston.warn "Trying to load invalid named handler", name

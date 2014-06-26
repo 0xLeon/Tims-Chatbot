@@ -20,21 +20,22 @@
 common = require './common'
 config = require './config'
 winston = require 'winston'
+debug = (require 'debug')('Chatbot:api')
 
 # attempts to retrieve the current security token
 # calls the callback without parameters afterwards
 fetchSecurityToken = (callback) ->
-	winston.debug "Fetching security token..."
+	debug "Fetching security token..."
 	common.request.get config.host + '/index.php', (err, res, body) ->
 		common.fatal 'Cannot fetch security token:', err if err?
 		common.fatal 'Unable to find security token in source' unless [_, config.securityToken] = body.match /var SECURITY_TOKEN = '([a-f0-9]{40})';/
-		winston.debug "Done, Security token is:", config.securityToken
+		debug "Done, Security token is: #{config.securityToken}"
 		callback?()
 
 # attempts to login the user, will save the userID in config.userID
 # calls the callback without parameters afterwards
 sendLoginRequest = (callback) ->
-	winston.debug "Logging in as #{config.username}..."
+	debug "Logging in as #{config.username}..."
 	common.request.post config.host + '/index.php/Login/', 
 	form: 
 		username: config.username
@@ -51,7 +52,7 @@ sendLoginRequest = (callback) ->
 # calls the callback without parameters if everything was successful
 # and with a string as the first parameter when something failed
 joinRoom = (roomID, callback) ->
-	winston.debug "Joining room #{roomID}"
+	debug "Joining room #{roomID}"
 	common.request.post config.host + '/index.php/AJAXProxy/',
 	form:
 		actionName: 'join'
@@ -75,7 +76,7 @@ joinRoom = (roomID, callback) ->
 # retrieves the roomlist and calls the callback with the roomList as
 # first parameter afterwards
 getRoomList = (callback) ->
-	winston.debug "Fetching roomlist..."
+	debug "Fetching roomlist..."
 	common.request.post config.host + '/index.php/AJAXProxy/',
 	form:
 		actionName: 'getRoomList'
