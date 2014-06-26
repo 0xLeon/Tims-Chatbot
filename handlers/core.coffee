@@ -45,14 +45,28 @@ handleMessage = (message, callback) ->
 		timestamp: Date.now()
 		userID: message.sender
 	
-	if config.enableFrontend and message.message is '*getPassword'
-		crypto.randomBytes 20, (ex, buf) ->
-			token = (buf.toString 'hex').substring 0, 20
-			db.run "UPDATE users SET password = ? WHERE userID = ?", token, message.sender
-			
-			api.replyTo message, __("Your password is: %s", token), no, callback
-	else
+	if message.message.substring(0, 1) isnt '*'
+		# ignore messages that don't start with an asterisk
 		callback?()
+		return
+	
+	text = (message.message.substring 1).split /\s/
+	[ command, parameters ] = [ text.shift(), text.join ' ' ]
+	
+	switch command
+		when 'getPassword'
+			if config.enableFrontend
+				crypto.randomBytes 20, (ex, buf) ->
+					token = (buf.toString 'hex').substring 0, 20
+					db.run "UPDATE users SET password = ? WHERE userID = ?", token, message.sender
+					
+					api.replyTo message, __("Your password is: %s", token), no, callback
+			else
+				callback?()
+		when 'about'
+			api.replyTo message, __("This is Tim’s Chatbot.\nIt is licensed under the terms of the GNU Affero General Public License. You can obtain a copy of the Chatbot at https://github.com/wbbaddons/Tims-Chatbot."), no, callback
+		else
+			callback?()
 
 handleUser = (user, callback) ->
 	userQueue[user.userID] =
