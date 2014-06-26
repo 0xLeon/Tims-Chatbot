@@ -16,12 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###
 
-winston = require 'winston'
+debug = (require 'debug')('Chatbot:log')
 
 handleMessage = (message, callback) ->
-	winston.debug "[Log]", message.message
+	debug message.message
 	callback?()
-
 
 unload = (callback) -> callback?()
 module.exports =
