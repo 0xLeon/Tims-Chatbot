@@ -52,10 +52,7 @@ config.securityToken = ''
 config.userID = null
 config.upSince = new Date()
 
-i18n = require 'i18n'
-i18n.configure
-	directory: __dirname + '/locales'
-i18n.setLocale config.locale
+i18n = require './i18n'
 
 db = require './db'
 api = require './api'

@@ -19,7 +19,6 @@
 config = require './config'
 winston = require 'winston'
 api = require './api'
-i18n = require 'i18n'
 
 sqlite = (require 'sqlite3').verbose()
 

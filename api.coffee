@@ -70,7 +70,7 @@ joinRoom = (roomID, callback) ->
 				winston.error "Unexpected error while joining", data
 				process.exit 1
 		else
-			winston.debug "Done, room title is", data.title
+			debug "Done, room title is #{data.title}"
 			callback?()
 
 # retrieves the roomlist and calls the callback with the roomList as
@@ -84,7 +84,7 @@ getRoomList = (callback) ->
 		t: config.securityToken
 	, (err, res, body) ->
 		roomList = (JSON.parse body).returnValues
-		winston.info "Found #{roomList.length} rooms"
+		debug "Found #{roomList.length} rooms"
 		callback roomList if callback?
 
 # Leaves the chat

@@ -22,7 +22,7 @@ handlers = require '../handlers'
 api = require '../api'
 winston = require 'winston'
 db = require '../db'
-{ __, __n } = require 'i18n'
+{ __, __n } = require '../i18n'
 
 frontend = require '../frontend'
 
