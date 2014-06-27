@@ -67,8 +67,7 @@ joinRoom = (roomID, callback) ->
 				winston.error "Room is invalid"
 				callback 'invalid' if callback?
 			else
-				winston.error "Unexpected error while joining", data
-				process.exit 1
+				common.fatal "Unexpected error while joining: #{JSON.stringify(data)}"
 		else
 			debug "Done, room title is #{data.title}"
 			callback?()
@@ -104,8 +103,7 @@ fetchMessages = (callback) ->
 		try
 			data = JSON.parse body
 		catch e
-			winston.error "Invalid JSON returned by NewMessages", body
-			process.exit 1
+			common.fatal "Invalid JSON returned by NewMessages #{body}"
 		
 		callback data if callback?
 

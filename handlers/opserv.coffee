@@ -78,11 +78,11 @@ handleMessage = (message, callback) ->
 					callback?()
 		when "load"
 			commands.load (err) ->
-				api.replyTo message, (if err? then __("Failed to load module %s", parameters) else __("Loaded module %s", parameters)), no, callback
+				api.replyTo message, (if err? then __("Failed to load module “%s”", parameters) else __("Loaded module %s", parameters)), no, callback
 			, parameters
 		when "unload"
 			commands.unload (err) ->
-				api.replyTo message, (if err? then __("Failed to unload module %s", parameters) else __("Unloaded module %s", parameters)), no, callback
+				api.replyTo message, (if err? then __("Failed to unload module “%s”", parameters) else __("Unloaded module %s", parameters)), no, callback
 			, parameters
 		when "setPermission"
 			db.checkPermissionByMessage message, 'opserv.setPermission', (hasPermission) ->
@@ -125,9 +125,7 @@ handleMessage = (message, callback) ->
 			debug "Ignoring unknown command #{command}"
 			callback?()
 
-unload = (callback) ->
-	winston.error "panic() - Going nowhere without my opserv"
-	process.exit 1
+unload = (callback) -> common.fatal "panic() - Going nowhere without my opserv"
 
 module.exports =
 	handleMessage: handleMessage

@@ -28,8 +28,7 @@ loadHandlers = ->
 	for name in [ 'opserv', 'core' ]
 		loadHandler name, (err) ->
 			return unless err?
-			winston.error "panic() - Going nowhere without my", name
-			process.exit 1
+			common.fatal "panic() - Going nowhere without my #{name}"
 		
 	async.each config.handlers, loadHandler, (err) ->
 		winston.info "Finished loading handlers"
@@ -56,7 +55,7 @@ loadHandler = (name, callback) ->
 				unloadHandler name
 				callback "invalid" if callback?
 		catch e
-			winston.error "Failed to compile handler", name, e.message
+			winston.error "Failed to compile handler “#{name}”: #{e.message}"
 			callback "compile" if callback?
 
 unloadHandler = (name, callback) ->

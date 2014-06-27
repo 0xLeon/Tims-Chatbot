@@ -76,9 +76,7 @@ handleUser = (user, callback) ->
 	
 	callback?()
 
-unload = (callback) ->
-	winston.error "panic() - Going nowhere without my core"
-	process.exit 1
+unload = (callback) -> common.fatal "panic() - Going nowhere without my core"
 
 module.exports =
 	handleMessage: handleMessage
