@@ -134,7 +134,7 @@ handleMessage = (message, callback) ->
 					db.getUserByUsername username, '', (err, user) ->
 						if user?
 							db.getPermissionsByUserID user.userID, (rows) ->
-								api.replyTo message, __('“%1$s” (%2$s) has these permissions: %3$s', user.lastUsername, user.userID, (row.permission for row in rows).join ', '), no, callback
+								api.replyTo message, __('“%1$s” (%2$s) has got these permissions: %3$s', user.lastUsername, user.userID, (row.permission for row in rows).join ', '), no, callback
 						else
 							api.replyTo message, __("Could not find user “%s”", parameters), no, callback
 				else
