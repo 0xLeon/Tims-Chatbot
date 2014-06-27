@@ -49,13 +49,17 @@ loadHandler = (name, callback) ->
 		try
 			loadedHandlers[name] = require './handlers/' + name
 			if loadedHandlers[name].handleMessage? and loadedHandlers[name].handleUser?
-				callback?()
+				if loadedHandlers[name].onLoad?
+					loadedHandlers[name].onLoad callback
+				else
+					callback?()
 			else
 				winston.error "Invalid handler, unloading:", name
 				unloadHandler name
 				callback? "invalid"
 		catch e
 			winston.error "Failed to compile handler “#{name}”: #{e.message}"
+			unloadHandler name
 			callback? "compile"
 
 unloadHandler = (name, callback) ->
