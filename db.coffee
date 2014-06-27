@@ -86,6 +86,16 @@ do ->
 			else
 				callback?()
 
+# Removes the permission from the user with the given userID
+do ->
+	query = db.prepare "DELETE FROM user_to_permission WHERE userID = ? AND permission = ?"
+	db.removePermissionFromUserID = (userID, permission, callback) ->
+		query.run userID, permission, (err, row) ->
+			if err?
+				winston.error "Error while giving permission", err
+			else
+				callback?()
+
 # See `hasPermissionByUserID`, additionally whispers the user if he lacks permissions
 db.checkPermissionByMessage = (message, permission, callback) ->
 	db.hasPermissionByUserID message.sender, permission, (result) ->

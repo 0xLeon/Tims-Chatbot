@@ -97,7 +97,6 @@ handleMessage = (message, callback) ->
 								else
 									db.givePermissionToUserID user.userID, permission.join('').trim(), (rows) ->
 										api.replyTo message, __("Gave %1$s to “%2$s”", permission, username), no, callback
-							
 						else
 							api.replyTo message, __("Could not find user “%s”", username), no, callback
 				else
@@ -109,6 +108,23 @@ handleMessage = (message, callback) ->
 					#    #3) With great power comes great responsibility.
 					#
 					# This incident will be reported.
+					callback?()
+		when "removePermission"
+			db.checkPermissionByMessage message, 'opserv.setPermission', (hasPermission) ->
+				if hasPermission
+					[ username, permission... ] = parameters.split /,/
+					
+					db.getUserByUsername username.trim(), (err, user) ->
+						if user?
+							db.hasPermissionByUserID user.userID, permission.join('').trim(), (alreadyHasPermission) ->
+								if alreadyHasPermission
+									db.givePermissionToUserID user.userID, permission.join('').trim(), (rows) ->
+										api.replyTo message, __("Removed %1$s from “%2$s”", permission, username), no, callback
+								else
+									api.replyTo message, __("“%2$s” does not have the permission %1$s", permission, username), no, callback
+						else
+							api.replyTo message, __("Could not find user “%s”", username), no, callback
+				else
 					callback?()
 		when "getPermissions"
 			db.checkAnyPermissionByMessage message, [ 'opserv.setPermission', 'opserv.getPermissions' ], (hasPermission) ->
