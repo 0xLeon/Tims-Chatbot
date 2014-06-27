@@ -65,6 +65,12 @@ handleMessage = (message, callback) ->
 				callback?()
 		when 'about'
 			api.replyTo message, __("This is Tim’s Chatbot.\nIt is licensed under the terms of the GNU Affero General Public License. You can obtain a copy of the Chatbot at https://github.com/wbbaddons/Tims-Chatbot."), no, callback
+		when 'getStats'
+			db.checkPermissionByMessage message, 'core.getStats', (hasPermission) ->
+				if hasPermission
+					api.replyTo message, __("Statistics:\nUp since: #{config.upSince} (#{process.uptime()} seconds)\nMemory Usage: #{process.memoryUsage().rss / 1024} KiB"), no, callback
+				else
+					callback?()
 		else
 			callback?()
 
