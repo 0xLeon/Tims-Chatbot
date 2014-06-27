@@ -38,13 +38,13 @@ loadHandler = (name, callback) ->
 	
 	unless /^[a-z]+$/.test name
 		winston.warn "Trying to load invalid named handler", name
-		callback "invalid" if callback?
+		callback? "invalid"
 		return
 		
 	if loadedHandlers[name]?
 		winston.warn "Trying to load loaded handler", name
 		
-		callback "loaded" if callback?
+		callback? "loaded"
 	else
 		try
 			loadedHandlers[name] = require './handlers/' + name
@@ -53,28 +53,28 @@ loadHandler = (name, callback) ->
 			else
 				winston.error "Invalid handler, unloading:", name
 				unloadHandler name
-				callback "invalid" if callback?
+				callback? "invalid"
 		catch e
 			winston.error "Failed to compile handler “#{name}”: #{e.message}"
-			callback "compile" if callback?
+			callback? "compile"
 
 unloadHandler = (name, callback) ->
 	if name in [ 'core', 'opserv' ]
 		winston.warn "Trying to unload", name
-		callback "permissionDenied" if callback?
+		callback? "permissionDenied"
 		return
 		
 	winston.debug 'Unloading handler:', name
-	unless loadedHandlers[name]?
-		winston.warn "Trying to unload unloaded handler", name
-		callback "notLoaded" if callback?
-	else
+	if loadedHandlers[name]?
 		if loadedHandlers[name].unload?
 			loadedHandlers[name].unload -> callback?()
 		else
 			callback?()
 		
 		delete loadedHandlers[name]
+	else
+		winston.warn "Trying to unload unloaded handler", name
+		callback? "notLoaded"
 
 getLoadedHandlers = -> k for k of loadedHandlers
 
