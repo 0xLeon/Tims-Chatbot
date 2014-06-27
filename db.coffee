@@ -18,6 +18,7 @@
 
 config = require './config'
 winston = require 'winston'
+debug = (require 'debug')('Chatbot:db')
 api = require './api'
 
 sqlite = (require 'sqlite3').verbose()
@@ -47,7 +48,7 @@ db.serialize ->
 	db.run "INSERT OR IGNORE INTO bot (key, value) VALUES (?, ?);", 'firstStart', Date.now()
 
 process.on 'exit', ->
-	winston.debug 'Closing database'
+	debug 'Closing database'
 	do db.close
 
 # retrieves a user by the given username and calls the callback with the retrieved row

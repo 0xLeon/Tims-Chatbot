@@ -64,7 +64,7 @@ unloadHandler = (name, callback) ->
 		callback? "permissionDenied"
 		return
 		
-	winston.debug 'Unloading handler:', name
+	debug "Unloading handler: #{name}"
 	if loadedHandlers[name]?
 		if loadedHandlers[name].unload?
 			loadedHandlers[name].unload -> callback?()
