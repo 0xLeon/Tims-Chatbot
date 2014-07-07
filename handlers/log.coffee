@@ -22,8 +22,7 @@ handleMessage = (message, callback) ->
 	debug message.message
 	callback?()
 
-unload = (callback) -> callback?()
 module.exports =
 	handleMessage: handleMessage
 	handleUser: (user, callback) -> callback?()
-	unload: unload
+	unload: (callback) -> callback?()
