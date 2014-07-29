@@ -34,9 +34,11 @@ handleMessage = (message, callback) ->
 
 	switch command
 		when 'dice'
-			sides = 6
-			dice = 1
-			api.sendMessage Random.dice(sides, dice)(mt).join(','), yes, callback
+			if parameters isnt ''
+				[ dice, sides ] = parameters.split /d/
+			sides = 6 if not sides? or sides is ''
+			dice = 1 if not dice? or dice is ''
+			api.sendMessage Random.dice(sides, dice)(mt).join(', '), yes, callback
 
 		else
 			callback?()
