@@ -34,6 +34,7 @@ commands =
 			process.exit 0
 	load: (callback, parameters) -> handlers.loadHandler parameters, callback
 	unload: (callback, parameters) -> handlers.unloadHandler parameters, callback
+	purge: (callback, parameters) -> handlers.purgeHandler parameters, callback
 	loaded: (callback) -> callback handlers.getLoadedHandlers() if callback?
 
 frontend.get '/opserv/shutdown', (req, res) -> commands.shutdown -> res.send 200, 'OK'
@@ -89,6 +90,14 @@ handleMessage = (message, callback) ->
 				if hasPermission
 					commands.unload (err) ->
 						api.replyTo message, (if err? then __("Failed to unload module “%s”", parameters) else __("Unloaded module %s", parameters)), no, callback
+					, parameters
+				else
+					callback?()
+		when "purge"
+			db.checkPermissionByMessage message, 'opserv.purge', (hasPermission) ->
+				if hasPermission
+					commands.purge (err) ->
+						api.replyTo message, (if err? then __("Failed to purge configuration of module “%s”", parameters) else __("Purged configuration of module %s", parameters)), no, callback
 					, parameters
 				else
 					callback?()

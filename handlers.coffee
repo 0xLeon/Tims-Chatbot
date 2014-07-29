@@ -79,6 +79,24 @@ unloadHandler = (name, callback) ->
 	else
 		winston.warn "Trying to unload unloaded handler", name
 		callback? "notLoaded"
+		
+purgeHandler = (name, callback) ->
+	debug "Purging handler: #{name}"
+	
+	if loadedHandlers[name]?
+		if loadedHandlers[name].purge?
+			handler = loadedHandlers[name]
+			unloadHandler name, (err) ->
+				unless err?
+					handler.purge -> callback?()
+				else
+					callback?()
+		else
+			winston.warn "Handler “#{name}” doesn't have a purge function!", name
+			callback? "noFunc"
+	else
+		winston.warn "Trying to purge unloaded handler", name
+		callback? "unloaded"
 
 getLoadedHandlers = -> k for k of loadedHandlers
 
@@ -95,6 +113,7 @@ module.exports =
 	loadHandlers: loadHandlers
 	loadHandler: loadHandler
 	unloadHandler: unloadHandler
+	purgeHandler: purgeHandler
 	getLoadedHandlers: getLoadedHandlers
 	handleMessage: handleMessage
 	handleUser: handleUser
