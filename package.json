@@ -27,7 +27,8 @@
 		"winston": "*",
 		"sqlite3": "~2.2",
 		"i18n": "~0.5",
-		"lru-cache": "~2.5"
+		"lru-cache": "~2.5",
+		"random-js": "~1.0"
 	},
 	"scripts": {
 		"prestart": "npm install",
