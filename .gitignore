@@ -3,4 +3,5 @@ config.coffee
 !locales/*.js
 node_modules
 *.sqlite3
+*.sqlite3.journal
 .fuse_hidden*
