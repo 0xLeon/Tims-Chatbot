@@ -77,13 +77,21 @@ handleMessage = (message, callback) ->
 				else
 					callback?()
 		when "load"
-			commands.load (err) ->
-				api.replyTo message, (if err? then __("Failed to load module “%s”", parameters) else __("Loaded module %s", parameters)), no, callback
-			, parameters
+			db.checkPermissionByMessage message, 'opserv.load', (hasPermission) ->
+				if hasPermission
+					commands.load (err) ->
+						api.replyTo message, (if err? then __("Failed to load module “%s”", parameters) else __("Loaded module %s", parameters)), no, callback
+					, parameters
+				else
+					callback?()
 		when "unload"
-			commands.unload (err) ->
-				api.replyTo message, (if err? then __("Failed to unload module “%s”", parameters) else __("Unloaded module %s", parameters)), no, callback
-			, parameters
+			db.checkPermissionByMessage message, 'opserv.unload', (hasPermission) ->
+				if hasPermission
+					commands.unload (err) ->
+						api.replyTo message, (if err? then __("Failed to unload module “%s”", parameters) else __("Unloaded module %s", parameters)), no, callback
+					, parameters
+				else
+					callback?()
 		when "setPermission"
 			db.checkPermissionByMessage message, 'opserv.setPermission', (hasPermission) ->
 				if hasPermission
