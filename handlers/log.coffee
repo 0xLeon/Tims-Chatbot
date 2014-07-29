@@ -19,7 +19,7 @@
 debug = (require 'debug')('Chatbot:log')
 
 handleMessage = (message, callback) ->
-	debug message.message
+	debug "[#{message.username}] #{message.message}"
 	callback?()
 
 module.exports =
