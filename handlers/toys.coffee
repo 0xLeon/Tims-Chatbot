@@ -19,6 +19,7 @@
 debug = (require 'debug')('Chatbot:toys')
 api = require '../api'
 Random = require 'random-js'
+{ __, __n } = require '../i18n'
 
 mt = do Random.engines.mt19937
 do mt.autoSeed
@@ -38,6 +39,12 @@ handleMessage = (message, callback) ->
 				[ dice, sides ] = parameters.split /d/
 			sides = 6 if not sides? or sides is ''
 			dice = 1 if not dice? or dice is ''
+			if sides > 150 
+				api.replyTo message, __("The maximum number of sides is 150.")
+				return
+			if dice > 50
+				api.replyTo message, __("The maximum number of dices is 50.")
+				return
 			api.sendMessage Random.dice(sides, dice)(mt).join(', '), yes, callback
 
 		else
