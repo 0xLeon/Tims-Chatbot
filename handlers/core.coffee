@@ -68,7 +68,7 @@ handleMessage = (message, callback) ->
 		when 'getStats'
 			db.checkPermissionByMessage message, 'core.getStats', (hasPermission) ->
 				if hasPermission
-					api.replyTo message, __("Statistics:\nUp since: #{config.upSince} (#{process.uptime()} seconds)\nMemory Usage: #{process.memoryUsage().rss / 1024} KiB"), no, callback
+					api.replyTo message, __("Statistics:\nUp since: %1$s (%2$d seconds)\nMemory Usage: %3$d} KiB", config.upSince, process.uptime(), process.memoryUsage().rss / 1024), no, callback
 				else
 					callback?()
 		else
