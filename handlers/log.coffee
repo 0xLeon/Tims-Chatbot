@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###
 
-debug = (require 'debug')('Chatbot:log')
+debug = (require 'debug')('Chatbot:handlers:log')
 
 handleMessage = (message, callback) ->
 	debug "[#{message.username}] #{message.message}"
