@@ -62,6 +62,12 @@ handlers = require './handlers'
 process.on 'SIGTERM', -> api.leaveChat -> process.exit 0
 process.on 'SIGINT', -> api.leaveChat -> process.exit 0
 
+# gracefully exit chat upon encountering an uncaughtException
+process.once 'uncaughtException', (err) ->
+	console.log 'Uncaught exception:'
+	console.log err
+	api.leaveChat -> process.exit 0
+
 api.fetchSecurityToken -> api.sendLoginRequest ->
 	# new session after login, refetch token
 	api.fetchSecurityToken -> api.getRoomList (roomList) ->
