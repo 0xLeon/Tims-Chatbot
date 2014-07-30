@@ -40,10 +40,10 @@ handleMessage = (message, callback) ->
 			sides = 6 if not sides? or sides is ''
 			dice = 1 if not dice? or dice is ''
 			if sides > 150 
-				api.replyTo message, __("The maximum number of sides is 150.")
+				api.replyTo message, __("The maximum number of sides is 150."), no, callback
 				return
 			if dice > 50
-				api.replyTo message, __("The maximum number of dices is 50.")
+				api.replyTo message, __("The maximum number of dices is 50."), no, callback
 				return
 			api.sendMessage Random.dice(sides, dice)(mt).join(', '), yes, callback
 
