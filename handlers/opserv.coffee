@@ -71,6 +71,11 @@ db.get "SELECT COUNT(*) AS count FROM user_to_permission WHERE permission = ?", 
 				console.log "	?sesame #{adminKey}"
 
 handleMessage = (message, callback) ->
+	if message.sender is config.userID
+		# Chatbot should not control itself via opserv
+		callback?()
+		return
+	
 	if message.message.substring(0, 1) isnt '?'
 		# ignore messages that don't start with a question mark
 		callback?()
