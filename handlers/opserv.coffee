@@ -95,7 +95,7 @@ handleMessage = (message, callback) ->
 			db.checkAnyPermissionByMessage message, [ 'opserv.load', 'opserv.unload' ], (hasPermission) ->
 				if hasPermission
 					commands.loaded (handlers) ->
-						api.sendMessage __("These handlers are loaded: %s", handlers.join ', '), no, callback
+						api.replyTo message, __("These handlers are loaded: %s", handlers.join ', '), no, callback
 				else
 					callback?()
 		when "load"
