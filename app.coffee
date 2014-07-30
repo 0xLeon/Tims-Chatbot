@@ -74,11 +74,23 @@ api.fetchSecurityToken -> api.sendLoginRequest ->
 			do handlers.loadHandlers
 			api.sendMessage i18n.__("I'm here!"), yes, ->
 				api.recursiveFetchMessages (data) ->
+					completedUsers = no
+					completedMessages = no
+					
 					async.each data.messages, (item, callback) ->
 						handlers.handleMessage item, callback
 					, (err) ->
+						completedMessages = yes
 						#console.log "Handled each message"
 					async.each data.users, (item, callback) ->
 						handlers.handleUser item, callback
 					, (err) ->
+						completedUsers = yes
 						#console.log "Handled each message"
+						
+					setTimeout ->
+						unless completedMessages
+							winston.warn "Handling messages takes very long, there might be a bug in a handler!"
+						unless completedUsers
+							winston.warn "Handling users takes very long, there might be a bug in a handler!"
+					, 10e3
