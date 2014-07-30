@@ -170,7 +170,7 @@ handleMessage = (message, callback) ->
 				if hasPermission
 					[ username ] = parameters.split /,/
 					
-					db.getUserByUsername username, '', (err, user) ->
+					db.getUserByUsername username.trim(), (err, user) ->
 						if user?
 							db.getPermissionsByUserID user.userID, (rows) ->
 								api.replyTo message, __('“%1$s” (%2$s) has got these permissions: %3$s', user.lastUsername, user.userID, (row.permission for row in rows).join ', '), no, callback
