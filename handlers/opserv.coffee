@@ -44,14 +44,16 @@ frontend.get '/opserv/load/:module', (req, res) ->
 		if err?
 			res.send 503, err
 		else
-			res.send 200, 'OK'
+			req.flash 'success', "Successfully loaded #{req.params.module}"
+			res.redirect '/'
 	, req.params.module
 frontend.get '/opserv/unload/:module', (req, res) -> 
 	commands.unload (err) -> 
 		if err?
 			res.send 503, err
 		else
-			res.send 200, 'OK'
+			req.flash 'success', "Successfully unloaded #{req.params.module}"
+			res.redirect '/'
 	, req.params.module
 frontend.get '/opserv/loaded', (req, res) ->
 	commands.loaded (handlers) -> res.send 200, handlers.join ', '
