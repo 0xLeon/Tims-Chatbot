@@ -44,7 +44,7 @@ frontend.get '/opserv/load/:module', (req, res) ->
 		if err?
 			res.send 503, err
 		else
-			req.flash 'success', "Successfully loaded #{req.params.module}"
+			req.flash 'success', __("Successfully loaded %1$s", req.params.module)
 			res.redirect '/'
 	, req.params.module
 frontend.get '/opserv/unload/:module', (req, res) -> 
@@ -52,7 +52,7 @@ frontend.get '/opserv/unload/:module', (req, res) ->
 		if err?
 			res.send 503, err
 		else
-			req.flash 'success', "Successfully unloaded #{req.params.module}"
+			req.flash 'success', __("Successfully unloaded %1$s", req.params.module)
 			res.redirect '/'
 	, req.params.module
 frontend.get '/opserv/loaded', (req, res) ->
@@ -66,8 +66,8 @@ db.get "SELECT COUNT(*) AS count FROM user_to_permission WHERE permission = ?", 
 	else
 		if row.count is 0
 			crypto.randomBytes 20, (ex, buf) ->
+				adminKey = (buf.toString 'hex')[0..20]
 				console.log __("There is no user with the opserv.setPermission permission. Use the following command to receive it:")
-				adminKey = (buf.toString 'hex').substring 0, 20
 				console.log "	?sesame #{adminKey}"
 
 handleMessage = (message, callback) ->
@@ -126,7 +126,7 @@ handleMessage = (message, callback) ->
 			if parameters is adminKey
 				adminKey = null
 				db.givePermissionToUserID message.sender, 'opserv.setPermission', (rows) ->
-					api.replyTo message, __("You received the opserv.setPermission permission. Have fun!"), no, callback
+					api.replyTo message, __("You received the “opserv.setPermission” permission. Have fun!"), no, callback
 			else
 				callback?()
 		when "setPermission"
@@ -143,7 +143,7 @@ handleMessage = (message, callback) ->
 									db.givePermissionToUserID user.userID, permission.join('').trim(), (rows) ->
 										api.replyTo message, __("Gave %1$s to “%2$s”", permission, username), no, callback
 						else
-							api.replyTo message, __("Could not find user “%s”", username), no, callback
+							api.replyTo message, __("Could not find user with username “%s”", username), no, callback
 				else
 					# We trust you have received the usual lecture from the local System
 					# Administrator. It usually boils down to these three things:
@@ -168,7 +168,7 @@ handleMessage = (message, callback) ->
 								else
 									api.replyTo message, __("“%2$s” does not have the permission %1$s", permission, username), no, callback
 						else
-							api.replyTo message, __("Could not find user “%s”", username), no, callback
+							api.replyTo message, __("Could not find user with username “%s”", username), no, callback
 				else
 					callback?()
 		when "getPermissions"
@@ -179,9 +179,9 @@ handleMessage = (message, callback) ->
 					db.getUserByUsername username.trim(), (err, user) ->
 						if user?
 							db.getPermissionsByUserID user.userID, (rows) ->
-								api.replyTo message, __('“%1$s” (%2$s) has got these permissions: %3$s', user.lastUsername, user.userID, (row.permission for row in rows).join ', '), no, callback
+								api.replyTo message, __('“%1$s” (%2$d) has got these permissions: %3$s', user.lastUsername, user.userID, (row.permission for row in rows).join ', '), no, callback
 						else
-							api.replyTo message, __("Could not find user “%s”", parameters), no, callback
+							api.replyTo message, __("Could not find user with username “%s”", parameters), no, callback
 				else
 					callback?()
 		else

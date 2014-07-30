@@ -45,7 +45,7 @@ handleMessage = (message, callback) ->
 		timestamp: Date.now()
 		userID: message.sender
 	
-	if message.message[1] isnt '*'
+	if message.message[0] isnt '*'
 		# ignore messages that don't start with an asterisk
 		callback?()
 		return
@@ -57,7 +57,7 @@ handleMessage = (message, callback) ->
 		when 'getPassword'
 			if config.enableFrontend
 				crypto.randomBytes 20, (ex, buf) ->
-					token = (buf.toString 'hex').substring 0, 20
+					token = (buf.toString 'hex')[0..20]
 					db.run "UPDATE users SET password = ? WHERE userID = ?", token, message.sender
 					
 					api.replyTo message, __("Your password is: %s", token), no, callback
