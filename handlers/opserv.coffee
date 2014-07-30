@@ -76,13 +76,13 @@ handleMessage = (message, callback) ->
 		callback?()
 		return
 	
-	if message.message.substring(0, 1) isnt '?'
+	if message.message[0] isnt '?'
 		# ignore messages that don't start with a question mark
 		callback?()
 		return
 	
-	text = (message.message.substring 1).split /\s/
-	[ command, parameters ] = [ text.shift(), text.join ' ' ]
+	[ command, parameters... ] = message.message[1..].split /\s/
+	parameters = parameters.join ' '
 	
 	switch command
 		when "shutdown"
@@ -94,7 +94,8 @@ handleMessage = (message, callback) ->
 		when "loaded"
 			db.checkAnyPermissionByMessage message, [ 'opserv.load', 'opserv.unload' ], (hasPermission) ->
 				if hasPermission
-					commands.loaded (handlers) -> api.sendMessage __("These handlers are loaded: %s", handlers.join ', '), no, callback
+					commands.loaded (handlers) ->
+						api.sendMessage __("These handlers are loaded: %s", handlers.join ', '), no, callback
 				else
 					callback?()
 		when "load"

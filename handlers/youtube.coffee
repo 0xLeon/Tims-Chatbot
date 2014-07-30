@@ -50,15 +50,15 @@ handleMessage = (message, callback) ->
 			if id isnt null and id[1]?
 				# Check if video ID has been cached already
 				if not lru.get(id[1])?
-					url = "https://www.googleapis.com/youtube/v3/videos?id=#{encodeURIComponent(id[1])}&key=#{encodeURIComponent(config.youtubeAPI.key)}&part=snippet&prettyPrint=false"
+					url = "https://www.googleapis.com/youtube/v3/videos?id=#{encodeURIComponent id[1]}&key=#{encodeURIComponent config.youtubeAPI.key}&part=snippet&prettyPrint=false"
 					
 					# See https://developers.google.com/youtube/v3/docs/standard_parameters#userIp
 					if config.youtubeAPI.userIP? and config.youtubeAPI.userIP isnt ''
-						url += "&userIp=#{encodeURIComponent(config.youtubeAPI.userIP)}"
+						url += "&userIp=#{encodeURIComponent config.youtubeAPI.userIP}"
 						
 					# See https://developers.google.com/youtube/v3/docs/standard_parameters#quotaUser
 					if config.youtubeAPI.quotaUser? and config.youtubeAPI.quotaUser isnt ''
-						url += "&quotaUser=#{encodeURIComponent(config.youtubeAPI.quotaUser)}"
+						url += "&quotaUser=#{encodeURIComponent config.youtubeAPI.quotaUser}"
 						
 					# Query Google’s YouTube API for the “video snippet”
 					debug "Starting request of '#{url}'"
@@ -99,15 +99,15 @@ handleMessage = (message, callback) ->
 		
 onLoad = (callback) ->
 	if not config.youtubeAPI?.key? or config.youtubeAPI.key is ''
-		error  = '\n[YouTube] To use this module you need an API key.\n'
-		error += 'Please consider creating a server API key at\n'
-		error += '> https://console.developers.google.com <\n'
-		error += 'To do so create a new project, open "APIs" under "APIS & AUTH" afterwards and\n'
-		error += 'activate the "YouTube Data API v3". Now open "Credentials" under "APIS & AUTH".\n'
-		error += 'Create a server key under "Public API access". Now you should have an API key.\n'
-		error += 'Open up your "config.coffee" and add the following:\n'
-		error += '\tyoutubeAPI:\n'
-		error += "\t\tkey: 'YOUR_API_KEY'"
+		error  = """[YouTube] To use this module you need an API key.
+			Please consider creating a server API key at
+			> https://console.developers.google.com <
+			To do so create a new project, open "APIs" under "APIS & AUTH" afterwards and
+			activate the "YouTube Data API v3". Now open "Credentials" under "APIS & AUTH".
+			Create a server key under "Public API access". Now you should have an API key.
+			Open up your "config.coffee" and add the following:
+				youtubeAPI:
+					key: 'YOUR_API_KEY'"""
 		winston.error error
 		
 		throw new Error "YouTube API key not specified."

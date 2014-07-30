@@ -45,13 +45,13 @@ handleMessage = (message, callback) ->
 		timestamp: Date.now()
 		userID: message.sender
 	
-	if message.message.substring(0, 1) isnt '*'
+	if message.message[1] isnt '*'
 		# ignore messages that don't start with an asterisk
 		callback?()
 		return
 	
-	text = (message.message.substring 1).split /\s/
-	[ command, parameters ] = [ text.shift(), text.join ' ' ]
+	[ command, parameters... ] = message.message[1..].split /\s/
+	parameters = parameters.join ' '
 	
 	switch command
 		when 'getPassword'
