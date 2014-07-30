@@ -74,7 +74,7 @@ handleMessage = (message, callback) ->
 					api.replyTo message, __("""
 						Statistics:
 						Up since: %1$s (%2$d seconds)
-						Memory Usage: %3$d} KiB
+						Memory Usage: %3$d KiB
 						""",
 						config.upSince,
 						process.uptime(),
