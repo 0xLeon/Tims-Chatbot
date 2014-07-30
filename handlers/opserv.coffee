@@ -17,6 +17,7 @@
 ###
 
 common = require '../common'
+crypto = require 'crypto'
 config = require '../config'
 handlers = require '../handlers'
 api = require '../api'
@@ -54,6 +55,18 @@ frontend.get '/opserv/unload/:module', (req, res) ->
 	, req.params.module
 frontend.get '/opserv/loaded', (req, res) ->
 	commands.loaded (handlers) -> res.send 200, handlers.join ', '
+
+
+adminKey = null
+db.get "SELECT COUNT(*) AS count FROM user_to_permission", (err, row) ->
+	if err?
+		winston.error "Error while checking permissions", err
+	else
+		if row.count is 0
+			crypto.randomBytes 20, (ex, buf) ->
+				console.log "There are no permissions set. Use the following command to gain administrator privileges: "
+				adminKey = (buf.toString 'hex').substring 0, 20
+				console.log "	?sesame #{adminKey}"
 
 handleMessage = (message, callback) ->
 	if message.message.substring(0, 1) isnt '?'
@@ -101,6 +114,13 @@ handleMessage = (message, callback) ->
 					, parameters
 				else
 					callback?()
+		when "sesame"
+			if parameters is adminKey
+				adminKey = null
+				db.givePermissionToUserID message.sender, 'opserv.setPermission', (rows) ->
+					api.replyTo message, __("You received the opserv.setPermission permission. Have fun!"), no, callback
+			else
+				callback?()
 		when "setPermission"
 			db.checkPermissionByMessage message, 'opserv.setPermission', (hasPermission) ->
 				if hasPermission
