@@ -157,7 +157,7 @@ handleMessage = (message, callback) ->
 						if user?
 							db.hasPermissionByUserID user.userID, permission.join('').trim(), (alreadyHasPermission) ->
 								if alreadyHasPermission
-									db.givePermissionToUserID user.userID, permission.join('').trim(), (rows) ->
+									db.removePermissionFromUserID user.userID, permission.join('').trim(), (rows) ->
 										api.replyTo message, __("Removed %1$s from “%2$s”", permission, username), no, callback
 								else
 									api.replyTo message, __("“%2$s” does not have the permission %1$s", permission, username), no, callback
