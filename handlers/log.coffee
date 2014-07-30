@@ -1,4 +1,8 @@
 ###
+# Log handler
+# 
+# This handler spits out every message it receives via `debug`.
+# 
 # Chatbot for Tim's Chat 3
 # Copyright (C) 2011 - 2014 Tim Düsterhus
 # 

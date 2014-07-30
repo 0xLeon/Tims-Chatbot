@@ -1,5 +1,8 @@
 ###
 # YouTube handler (YouTube API v3)
+#
+# This handler resolves the titles of posted youtube links and
+# posts them in Chat.
 # 
 # Chatbot for Tim's Chat 3
 # Copyright (C) 2011 - 2014 Tim Düsterhus

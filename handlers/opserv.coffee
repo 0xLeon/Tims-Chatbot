@@ -1,4 +1,8 @@
 ###
+# OpServ handler
+#
+# This handler provides commands to control the chatbot itself.
+#
 # Chatbot for Tim's Chat 3
 # Copyright (C) 2011 - 2014 Tim Düsterhus
 # 

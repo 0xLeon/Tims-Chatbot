@@ -1,4 +1,9 @@
 ###
+# Core handler
+#
+# This handler adds some general purpose commands and keeps and up to date
+# list of usernames and userIDs.
+#
 # Chatbot for Tim's Chat 3
 # Copyright (C) 2011 - 2014 Tim Düsterhus
 # 
