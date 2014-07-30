@@ -60,13 +60,13 @@ frontend.get '/opserv/loaded', (req, res) ->
 
 
 adminKey = null
-db.get "SELECT COUNT(*) AS count FROM user_to_permission", (err, row) ->
+db.get "SELECT COUNT(*) AS count FROM user_to_permission WHERE permission = ?", 'opserv.setPermission', (err, row) ->
 	if err?
 		winston.error "Error while checking whether permissions exist", err
 	else
 		if row.count is 0
 			crypto.randomBytes 20, (ex, buf) ->
-				console.log __("There are no permissions set. Use the following command to gain administrator privileges:")
+				console.log __("There is no user with the opserv.setPermission permission. Use the following command to receive it:")
 				adminKey = (buf.toString 'hex').substring 0, 20
 				console.log "	?sesame #{adminKey}"
 
