@@ -130,6 +130,9 @@ sendMessage = (message, enableSmilies = yes, callback) ->
 # replies (i.e. whispers to the sender) to the given message. See `sendMessage`
 replyTo = (message, reply, enableSmilies = yes, callback) -> sendMessage "/whisper #{message.username}, #{reply}", enableSmilies, callback
 
+# escapes the / at the beginning of a message
+escapeMessage = (message) -> message.replace /^\//, '//'
+
 module.exports =
 	fetchSecurityToken: fetchSecurityToken
 	sendLoginRequest: sendLoginRequest
@@ -140,3 +143,4 @@ module.exports =
 	recursiveFetchMessages: recursiveFetchMessages
 	sendMessage: sendMessage
 	replyTo: replyTo
+	escapeMessage: escapeMessage
