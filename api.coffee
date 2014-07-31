@@ -36,8 +36,8 @@ fetchSecurityToken = (callback) ->
 # calls the callback without parameters afterwards
 sendLoginRequest = (callback) ->
 	debug "Logging in as #{config.username}..."
-	common.request.post config.host + '/index.php/Login/', 
-	form: 
+	common.request.post config.host + '/index.php/Login/',
+	form:
 		username: config.username
 		password: config.password
 		t: config.securityToken
