@@ -45,7 +45,7 @@ onLoad = (callback) ->
 		lookupQuery = db.prepare "SELECT value FROM dictionary WHERE key = ?"
 		addQuery = db.prepare "INSERT OR REPLACE INTO dictionary (key, value, userID, time) VALUES (?, ?, ?, ?)"
 		delQuery = db.prepare "DELETE FROM dictionary WHERE key = ?"
-		listQuery = db.prepare "SELECT key FROM dictionary"
+		listQuery = db.prepare "SELECT key FROM dictionary ORDER BY key ASC"
 		infoQuery = db.prepare "SELECT dictionary.*, users.lastUsername FROM dictionary LEFT JOIN users ON dictionary.userID = users.userID WHERE key = ?"
 		
 handleMessage = (message, callback) ->
