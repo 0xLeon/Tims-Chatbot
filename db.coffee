@@ -25,6 +25,63 @@ sqlite = (require 'sqlite3').verbose()
 
 db = new sqlite.Database config.database
 
+do ->
+	# This monkey patches sqlite.Database.prepare to support “hupped queries”
+	# Hupped queries will finalize all open prepared statements and reprepare them
+	# afterwards.
+	# Hupped queries are primarily meant to be used for queries that DROP TABLEs as
+	# table dropping only succeeds when no query is open.
+	# The name is inspired by unix daemons reloading their configuration once they
+	# encounter a SIGHUP signal
+	
+	i = 0
+	queries = {}
+	oldPrepare = db.prepare
+	db.prepare = (sql, parameters..., callback) ->
+		myID = i++
+		parameters.unshift sql
+		parameters.push callback
+		
+		query = null
+		
+		# (re)prepares the query
+		hup = ->
+			query = oldPrepare.apply db, parameters
+		do hup
+		
+		returnValue =
+			bind: (parameters...) -> query.bind.apply query, parameters
+			reset: (parameters...) -> query.reset.apply query, parameters
+			finalize: (parameters...) ->
+				# remove query cache
+				delete queries[myID]
+				query.finalize.apply query, parameters
+			run: (parameters...) -> query.run.apply query, parameters
+			get: (parameters...) -> query.get.apply query, parameters
+			all: (parameters...) -> query.all.apply query, parameters
+			each: (parameters...) -> query.each.apply query, parameters
+			hup: hup
+			
+		queries[myID] = returnValue
+		
+		return returnValue
+	
+	db.runHuppedQuery = (sql, parameters..., callback) ->
+		# 1st finalize all open queries
+		for queryID, query of queries
+			query.finalize()
+			queries[queryID] = query
+			
+		parameters.unshift sql
+		parameters.push ->
+			# 3rd reprepare all queries that were previously open
+			for queryID, query of queries
+				query.hup()
+			callback?()
+		
+		# 2nd run our hup’d query
+		db.run.apply db, parameters
+
 # creates default tables
 db.serialize ->
 	db.run "CREATE TABLE IF NOT EXISTS bot (
