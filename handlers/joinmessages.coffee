@@ -30,7 +30,7 @@ debug = (require 'debug')('Chatbot:handlers:joinMessages')
 db = require '../db'
 { __, __n } = require '../i18n'
 
-getQuery = setQuery = delQuery = null
+getByUsernameQuery = getQuery = setQuery = delQuery = null
 
 onLoad = (callback) ->
 	db.serialize ->
@@ -40,7 +40,8 @@ onLoad = (callback) ->
 			PRIMARY KEY(userID)
 		);"
 		
-		getQuery = db.prepare "SELECT joinMessages.value, users.* FROM users LEFT JOIN joinMessages ON users.userID = joinMessages.userID WHERE users.lastUsername = ?"
+		getByUsernameQuery = db.prepare "SELECT joinMessages.value, users.* FROM users LEFT JOIN joinMessages ON users.userID = joinMessages.userID WHERE users.lastUsername = ?"
+		getQuery = db.prepare "SELECT value FROM joinMessages WHERE userID = ?"
 		setQuery = db.prepare "INSERT OR REPLACE INTO joinMessages (userID, value) VALUES (?, ?)"
 		delQuery = db.prepare "DELETE FROM joinMessages WHERE userID = ?"
 		
@@ -50,7 +51,14 @@ handleMessage = (message, callback) ->
 		callback?()
 		return
 		
-	if message.message[0] is '!'
+	if message.type is common.messageTypes.JOIN
+		getQuery.get message.sender, (err, row) ->
+			if err? or not row?.value?
+				debug "[join] Error while reading quote: #{err}" if err?
+				callback?()
+			else
+				api.sendMessage __("[%1$s] %2$s", message.username, row.value), yes, callback
+	else if message.message[0] is '!'
 		text = message.message[1..].split /\s/
 		[ command, parameters ] = [ text.shift(), text.join ' ' ]
 		
@@ -59,9 +67,9 @@ handleMessage = (message, callback) ->
 				[ username ] = parameters.split /,/
 				username = message.username unless username? and username
 				
-				getQuery.get username, (err, row) ->
+				getByUsernameQuery.get username, (err, row) ->
 					if err? or not row?.value?
-						debug "Error: #{err}"
+						debug "Error while reading quote: #{err}" if err?
 						
 						if username is message.username
 							api.replyTo message, __("You currently don't have a quote set."), no, callback
@@ -77,7 +85,11 @@ handleMessage = (message, callback) ->
 					else
 						api.replyTo message, __("Your quote has been set to: “%1$s”", parameters), yes, callback
 			when 'delquote'
-				callback?()
+				delQuery.run message.sender, (err) ->
+					if err?
+						debug "Error while deleting quote: #{err}"
+					else
+						api.replyTo message, __("Your quote has been deleted."), yes, callback
 			when 'forcequote'
 				callback?()
 			when 'wipequote'
@@ -90,6 +102,7 @@ handleMessage = (message, callback) ->
 		
 unload = (callback) ->
 	async.parallel [
+		(callback) -> getByUsernameQuery.finalize -> getQuery = null; callback?()
 		(callback) -> getQuery.finalize -> getQuery = null; callback?()
 		(callback) -> setQuery.finalize -> setQuery = null; callback?()
 		(callback) -> delQuery.finalize -> delQuery = null; callback?()
