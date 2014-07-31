@@ -30,7 +30,7 @@ debug = (require 'debug')('Chatbot:handlers:joinMessages')
 db = require '../db'
 { __, __n } = require '../i18n'
 
-getByUsernameQuery = getQuery = setQuery = delQuery = null
+getQuery = setQuery = delQuery = null
 
 onLoad = (callback) ->
 	db.serialize ->
@@ -40,7 +40,6 @@ onLoad = (callback) ->
 			PRIMARY KEY(userID)
 		);"
 		
-		getByUsernameQuery = db.prepare "SELECT joinMessages.value, users.* FROM users LEFT JOIN joinMessages ON users.userID = joinMessages.userID WHERE users.lastUsername = ?"
 		getQuery = db.prepare "SELECT value FROM joinMessages WHERE userID = ?"
 		setQuery = db.prepare "INSERT OR REPLACE INTO joinMessages (userID, value) VALUES (?, ?)"
 		delQuery = db.prepare "DELETE FROM joinMessages WHERE userID = ?"
@@ -66,34 +65,74 @@ handleMessage = (message, callback) ->
 			when 'quote'
 				[ username ] = parameters.split /,/
 				username = message.username unless username? and username
+				username = username.trim()
 				
-				getByUsernameQuery.get username, (err, row) ->
-					if err? or not row?.value?
-						debug "Error while reading quote: #{err}" if err?
-						
-						if username is message.username
-							api.replyTo message, __("You currently don't have a quote set."), no, callback
-						else
-							api.replyTo message, __("User “%1$s” has no quote set.", username), no, callback
+				db.getUserByUsername username, (err, user) ->
+					if user?
+						getQuery.get user.userID, (err, row) ->
+							if err? or not row?.value?
+								debug "Error while reading quote: #{err}" if err?
+								
+								if username is message.username
+									api.replyTo message, __("You currently don't have a quote set."), no, callback
+								else
+									api.replyTo message, __("User “%1$s” has no quote set.", username), no, callback
+							else
+								api.replyTo message, __("[%1$s] %2$s", username, row.value), yes, callback
 					else
-						api.replyTo message, __("[%1$s] %2$s", username, row.value), yes, callback
+						callback?()
 			when 'setquote'
+				parameters = parameters.trim()
 				setQuery.run message.sender, parameters, (err) ->
 					if err?
-						debug "Error"
-						api.replyTo message, __("User %1$s has no quote set.", row.users.lastUsername), no, callback
+						debug "Error while setting quote: #{err}"
+						api.replyTo message, __("Failed while setting your quote."), no, callback
 					else
 						api.replyTo message, __("Your quote has been set to: “%1$s”", parameters), yes, callback
 			when 'delquote'
 				delQuery.run message.sender, (err) ->
 					if err?
 						debug "Error while deleting quote: #{err}"
+						api.replyTo message, __("Failed while deleting your quote."), no, callback
 					else
 						api.replyTo message, __("Your quote has been deleted."), yes, callback
 			when 'forcequote'
-				callback?()
+				db.checkPermissionByMessage message, 'joinMessages.forcequote', (hasPermission) ->
+					if hasPermission
+						[ username, quote... ] = parameters.split /,/
+						username = username.trim()
+						quote = quote.join(' ').trim()
+						
+						db.getUserByUsername username, (err, user) ->
+							if user?
+								setQuery.run user.userID, quote, (err) ->
+									if err?
+										debug "Error while setting quote: #{err}"
+										api.replyTo message, __("Failed while setting quote of „%1$s“."), no, callback
+									else
+										api.replyTo message, __("Quote of „%1$s“ has been set to: “%2$s”", username, quote), yes, callback
+							else
+								callback?()
+					else
+						callback?()
 			when 'wipequote'
-				callback?()
+				db.checkPermissionByMessage message, 'joinMessages.wipequote', (hasPermission) ->
+					if hasPermission
+						[ username, quote... ] = parameters.split /,/
+						username = username.trim()
+						
+						db.getUserByUsername username, (err, user) ->
+							if user?
+								delQuery.run user.userID, (err) ->
+									if err?
+										debug "Error while deleting quote: #{err}"
+										api.replyTo message, __("Failed while deleting quote of „%1$s“.", username), no, callback
+									else
+										api.replyTo message, __("Quote of „%1$s“ has been deleted.", username), yes, callback
+							else
+								callback?()
+					else
+						callback?()
 			else
 				callback?()
 	else
@@ -102,7 +141,6 @@ handleMessage = (message, callback) ->
 		
 unload = (callback) ->
 	async.parallel [
-		(callback) -> getByUsernameQuery.finalize -> getQuery = null; callback?()
 		(callback) -> getQuery.finalize -> getQuery = null; callback?()
 		(callback) -> setQuery.finalize -> setQuery = null; callback?()
 		(callback) -> delQuery.finalize -> delQuery = null; callback?()
