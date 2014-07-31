@@ -122,7 +122,7 @@ handleMessage = (message, callback) ->
 			db.checkPermissionByMessage message, 'opserv.purge', (hasPermission) ->
 				if hasPermission
 					commands.purge (err) ->
-						api.replyTo message, (if err? then __("Failed to purge configuration of module “%s”", parameters) else __("Purged configuration of module %s", parameters)), no, callback
+						api.replyTo message, (if err? then __("Failed to purge module “%s”", parameters) else __("Purged module %s", parameters)), no, callback
 					, parameters
 				else
 					callback?()
