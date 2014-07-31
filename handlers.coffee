@@ -88,9 +88,14 @@ purgeHandler = (name, callback) ->
 			handler = loadedHandlers[name]
 			unloadHandler name, (err) ->
 				unless err?
-					handler.purge -> callback?()
+					handler.purge (err) ->
+						if err?
+							debug "Purging of handler “#{name}” failed: #{err}"
+							callback? err
+						else
+							callback?()
 				else
-					callback?()
+					callback? err
 		else
 			winston.warn "Handler “#{name}” doesn't have a purge function!", name
 			callback? "noFunc"
