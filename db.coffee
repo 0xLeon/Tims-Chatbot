@@ -67,6 +67,8 @@ do ->
 		return returnValue
 	
 	db.runHuppedQuery = (sql, parameters..., callback) ->
+		do db.serialize
+		
 		# 1st finalize all open queries
 		for queryID, query of queries
 			query.finalize()
@@ -77,6 +79,7 @@ do ->
 			# 3rd reprepare all queries that were previously open
 			for queryID, query of queries
 				query.hup()
+			do db.parallelize
 			callback?()
 		
 		# 2nd run our hup’d query
