@@ -22,6 +22,8 @@ config = require './config'
 winston = require 'winston'
 debug = (require 'debug')('Chatbot:api')
 
+remainingFails = 3
+
 # attempts to retrieve the current security token
 # calls the callback without parameters afterwards
 fetchSecurityToken = (callback) ->
@@ -104,10 +106,14 @@ fetchMessages = (callback) ->
 	common.request.get config.host + '/index.php/NewMessages/', (err, res, body) ->
 		try
 			data = JSON.parse body
+			remainingFails = 3
 		catch e
-			common.fatal "Invalid JSON returned by NewMessages #{body}"
-		
-		callback data if callback?
+			unless --remainingFails
+				common.fatal "Invalid JSON returned by NewMessages #{body}"
+			else
+				winston.warn "Fetching messages failed. Remaining fails until shutdown: #{remainingFails}"
+				
+		callback? data
 
 # Permanently fetches messages with a delay of half a second between requests
 recursiveFetchMessages = (callback) ->
