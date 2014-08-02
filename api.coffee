@@ -43,7 +43,9 @@ sendLoginRequest = (callback) ->
 		t: config.securityToken
 	, (err, res, body) ->
 		common.fatal 'Cannot send login request', err if err?
-		common.fatal 'Login unsuccessful' if (not [_, userID] = body.match /WCF\.User\.init\((\d+), '/) or (config.userID = parseInt userID) is 0
+		common.fatal 'Login unsuccessful' unless /WCF\.User\.init\((\d+), '/.test body
+		[ _, userID ] = body.match /WCF\.User\.init\((\d+), '/
+		common.fatal 'Login unsuccessful' if not userID or (config.userID = parseInt userID) is 0
 		winston.info 'Logged in as userID', config.userID
 		
 		callback?()
