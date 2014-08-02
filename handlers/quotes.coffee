@@ -26,7 +26,7 @@ handlers = require '../handlers'
 api = require '../api'
 async = require 'async'
 winston = require 'winston'
-debug = (require 'debug')('Chatbot:handlers:joinMessages')
+debug = (require 'debug')('Chatbot:handlers:quotes')
 db = require '../db'
 { __, __n } = require '../i18n'
 
@@ -34,15 +34,15 @@ getQuery = setQuery = delQuery = null
 
 onLoad = (callback) ->
 	db.serialize ->
-		db.run "CREATE TABLE IF NOT EXISTS joinMessages (
+		db.run "CREATE TABLE IF NOT EXISTS quotes (
 			userID INT(10),
 			value MEDIUMTEXT,
 			PRIMARY KEY(userID)
 		);"
 		
-		getQuery = db.prepare "SELECT value FROM joinMessages WHERE userID = ?"
-		setQuery = db.prepare "INSERT OR REPLACE INTO joinMessages (userID, value) VALUES (?, ?)"
-		delQuery = db.prepare "DELETE FROM joinMessages WHERE userID = ?"
+		getQuery = db.prepare "SELECT value FROM quotes WHERE userID = ?"
+		setQuery = db.prepare "INSERT OR REPLACE INTO quotes (userID, value) VALUES (?, ?)"
+		delQuery = db.prepare "DELETE FROM quotes WHERE userID = ?"
 		
 handleMessage = (message, callback) ->
 	# Don't match our own messages
@@ -97,7 +97,7 @@ handleMessage = (message, callback) ->
 					else
 						api.replyTo message, __("Your quote has been deleted."), yes, callback
 			when 'forcequote'
-				db.checkPermissionByMessage message, 'joinMessages.forcequote', (hasPermission) ->
+				db.checkPermissionByMessage message, 'quotes.forcequote', (hasPermission) ->
 					if hasPermission
 						[ username, quote... ] = parameters.split /,/
 						username = username.trim()
@@ -116,7 +116,7 @@ handleMessage = (message, callback) ->
 					else
 						callback?()
 			when 'wipequote'
-				db.checkPermissionByMessage message, 'joinMessages.wipequote', (hasPermission) ->
+				db.checkPermissionByMessage message, 'quotes.wipequote', (hasPermission) ->
 					if hasPermission
 						[ username, quote... ] = parameters.split /,/
 						username = username.trim()
@@ -147,7 +147,7 @@ unload = (callback) ->
 	], callback
 	
 purge = (callback) ->
-	db.runHuppedQuery "DROP TABLE joinMessages;", (err) ->
+	db.runHuppedQuery "DROP TABLE quotes;", (err) ->
 		if err?
 			debug err
 			callback? err
