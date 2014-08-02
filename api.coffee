@@ -125,13 +125,16 @@ recursiveFetchMessages = (callback) ->
 
 # sends a message with `message` as the content and the given
 # smiley status and calls the callback without any parameters afterwards
-sendMessage = (message, enableSmilies = yes, callback) ->
+sendMessage = (message, options..., callback) ->
+	enableSmilies = options[0] ? yes
+	
 	common.request.post config.host + '/index.php/AJAXProxy/',
 	form:
 		actionName: 'send'
 		className: 'chat\\data\\message\\MessageAction'
 		'parameters[text]': message
 		'parameters[enableSmilies]': if enableSmilies then 1 else 0
+		'parameters[roomID]': options[1] if options[1]?
 		t: config.securityToken
 	, -> callback?()
 
