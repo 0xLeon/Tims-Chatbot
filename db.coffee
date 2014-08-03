@@ -21,7 +21,8 @@ winston = require 'winston'
 debug = (require 'debug')('Chatbot:db')
 api = require './api'
 
-sqlite = (require 'sqlite3').verbose()
+sqlite = require 'sqlite3'
+do sqlite.verbose if process.env.DEBUG
 
 db = new sqlite.Database config.database
 
