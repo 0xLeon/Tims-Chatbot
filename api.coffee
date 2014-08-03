@@ -99,7 +99,7 @@ leaveChat = (callback) ->
 		actionName: 'leave'
 		className: 'chat\\data\\room\\RoomAction'
 		t: config.securityToken
-	, -> callback?()
+	, callback
 
 # Fetches new messages and calls the callback with the retrieved data object
 fetchMessages = (callback) ->
@@ -127,6 +127,7 @@ recursiveFetchMessages = (callback) ->
 # smiley status and calls the callback without any parameters afterwards
 sendMessage = (message, options..., callback) ->
 	enableSmilies = options[0] ? yes
+	roomID = options[1] ? 0
 	
 	common.request.post config.host + '/index.php/AJAXProxy/',
 	form:
@@ -134,9 +135,9 @@ sendMessage = (message, options..., callback) ->
 		className: 'chat\\data\\message\\MessageAction'
 		'parameters[text]': message
 		'parameters[enableSmilies]': if enableSmilies then 1 else 0
-		'parameters[roomID]': options[1] if options[1]?
+		'parameters[roomID]': roomID
 		t: config.securityToken
-	, -> callback?()
+	, callback
 
 # replies (i.e. whispers to the sender) to the given message. See `sendMessage`
 replyTo = (message, reply, enableSmilies = yes, callback) -> sendMessage "/whisper #{message.username}, #{reply}", enableSmilies, callback
