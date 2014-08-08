@@ -34,19 +34,22 @@ lookupQuery = addQuery = delQuery = listQuery = infoQuery = null
 
 onLoad = (callback) ->
 	db.serialize ->
-		db.run "CREATE TABLE IF NOT EXISTS dictionary (
-			key VARCHAR(255),
-			value MEDIUMTEXT,
-			userID INT(10),
-			time INT(10),
-			PRIMARY KEY(key)
-		);"
-		
-		lookupQuery = db.prepare "SELECT value FROM dictionary WHERE key = ?"
-		addQuery = db.prepare "INSERT OR REPLACE INTO dictionary (key, value, userID, time) VALUES (?, ?, ?, ?)"
-		delQuery = db.prepare "DELETE FROM dictionary WHERE key = ?"
-		listQuery = db.prepare "SELECT key FROM dictionary ORDER BY key ASC"
-		infoQuery = db.prepare "SELECT dictionary.*, users.lastUsername FROM dictionary LEFT JOIN users ON dictionary.userID = users.userID WHERE key = ?"
+		async.series [
+			(callback) ->
+				db.run "CREATE TABLE IF NOT EXISTS dictionary (
+					key VARCHAR(255),
+					value MEDIUMTEXT,
+					userID INT(10),
+					time INT(10),
+					PRIMARY KEY(key)
+				);", callback
+				
+			(callback) -> lookupQuery = db.prepare "SELECT value FROM dictionary WHERE key = ?", callback
+			(callback) -> addQuery = db.prepare "INSERT OR REPLACE INTO dictionary (key, value, userID, time) VALUES (?, ?, ?, ?)", callback
+			(callback) -> delQuery = db.prepare "DELETE FROM dictionary WHERE key = ?", callback
+			(callback) -> listQuery = db.prepare "SELECT key FROM dictionary ORDER BY key ASC", callback
+			(callback) -> infoQuery = db.prepare "SELECT dictionary.*, users.lastUsername FROM dictionary LEFT JOIN users ON dictionary.userID = users.userID WHERE key = ?", callback
+		], callback
 		
 handleMessage = (message, callback) ->
 	# Don't match our own messages
@@ -62,6 +65,8 @@ handleMessage = (message, callback) ->
 				debug "Error while checking key “#{key}”: #{err}"
 			else if row?
 				api.sendMessage "[#{key}] #{row.value}", no, message.roomID, callback
+			else
+				callback?()
 	else if message.message[0] is '.' # check other dictionary commands
 		text = message.message[1..].split /\s/
 		[ command, parameters ] = [ text.shift(), text.join ' ' ]
@@ -106,6 +111,8 @@ handleMessage = (message, callback) ->
 								debug "Error reading from database: #{err}"
 							else if rows
 								api.replyTo message, __("Saved entries: %1$s", (row.key for row in rows).join ', '), no, callback
+							else
+								callback?()
 					else
 						callback?()
 			when 'info'
