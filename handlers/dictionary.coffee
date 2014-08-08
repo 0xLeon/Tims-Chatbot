@@ -61,7 +61,7 @@ handleMessage = (message, callback) ->
 			if err?
 				debug "Error while checking key “#{key}”: #{err}"
 			else if row?
-				api.sendMessage __("[%1$s] %2$s", key, row.value), no, callback
+				api.sendMessage "[#{key}] #{row.value}", no, message.roomID, callback
 	else if message.message[0] is '.' # check other dictionary commands
 		text = message.message[1..].split /\s/
 		[ command, parameters ] = [ text.shift(), text.join ' ' ]
