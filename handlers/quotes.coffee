@@ -34,15 +34,18 @@ getQuery = setQuery = delQuery = null
 
 onLoad = (callback) ->
 	db.serialize ->
-		db.run "CREATE TABLE IF NOT EXISTS quotes (
-			userID INT(10),
-			value MEDIUMTEXT,
-			PRIMARY KEY(userID)
-		);"
-		
-		getQuery = db.prepare "SELECT value FROM quotes WHERE userID = ?"
-		setQuery = db.prepare "INSERT OR REPLACE INTO quotes (userID, value) VALUES (?, ?)"
-		delQuery = db.prepare "DELETE FROM quotes WHERE userID = ?"
+		async.series [
+			(callback) ->
+				db.run "CREATE TABLE IF NOT EXISTS quotes (
+					userID INT(10),
+					value MEDIUMTEXT,
+					PRIMARY KEY(userID)
+				);", callback
+				
+			(callback) -> getQuery = db.prepare "SELECT value FROM quotes WHERE userID = ?", callback
+			(callback) -> setQuery = db.prepare "INSERT OR REPLACE INTO quotes (userID, value) VALUES (?, ?)", callback
+			(callback) -> delQuery = db.prepare "DELETE FROM quotes WHERE userID = ?", callback
+		], callback
 		
 handleMessage = (message, callback) ->
 	# Don't match our own messages
@@ -56,7 +59,7 @@ handleMessage = (message, callback) ->
 				debug "[join] Error while reading quote: #{err}" if err?
 				callback?()
 			else
-				api.sendMessage __("[%1$s] %2$s", message.username, row.value), yes, callback
+				api.sendMessage __("[%1$s] %2$s", message.username, row.value), yes, message.roomID, callback
 	else if message.message[0] is '!'
 		text = message.message[1..].split /\s/
 		[ command, parameters ] = [ text.shift(), text.join ' ' ]
