@@ -71,6 +71,7 @@ handleMessage = (message, callback) ->
 						catch e
 							winston.error "Invalid JSON returned by YouTube: #{body}"
 							callback?()
+							return
 							
 						if data.error?
 							errorMessage = "[YouTube] [#{data.error.code}] #{data.error.message}\n"
@@ -93,7 +94,7 @@ handleMessage = (message, callback) ->
 						
 				else
 					# Just peek as we got the value earlier
-					api.sendMessage lru.peek(id[1]), no, callback
+					api.sendMessage lru.peek(id[1]), no, message.roomID, callback
 			else
 				callback?()
 		, callback
