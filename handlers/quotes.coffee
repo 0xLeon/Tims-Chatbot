@@ -28,6 +28,7 @@ async = require 'async'
 winston = require 'winston'
 debug = (require 'debug')('Chatbot:handlers:quotes')
 db = require '../db'
+S = require('string')
 { __, __n } = require '../i18n'
 
 getQuery = setQuery = delQuery = null
@@ -59,7 +60,7 @@ handleMessage = (message, callback) ->
 				debug "[join] Error while reading quote: #{err}" if err?
 				callback?()
 			else
-				api.sendMessage __("[%1$s] %2$s", message.username, row.value), yes, message.roomID, callback
+				api.sendMessage __("[%1$s] %2$s", message.username, S(row.value).truncate(250, '…').s), yes, message.roomID, callback
 	else if message.message[0] is '!'
 		text = message.message[1..].split /\s/
 		[ command, parameters ] = [ text.shift(), text.join ' ' ]
