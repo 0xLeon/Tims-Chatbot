@@ -29,30 +29,35 @@ handleMessage = (message, callback) ->
 		# ignore messages that don't start with an exclamation mark
 		callback?()
 		return
-
+		
 	text = (message.message.substring 1).split /\s/
 	[ command, parameters ] = [ text.shift(), text.join ' ' ]
-
+	
 	switch command
 		when 'dice'
-			if parameters isnt ''
+			if parameters isnt '' and parameters.match /\d+d\d+/
 				[ dice, sides ] = parameters.split /d/
+			else
+				api.replyTo message, __("Your arguments were invalid!"), no, callback
+				return
+				
 			sides = 6 if not sides? or sides is ''
 			dice = 1 if not dice? or dice is ''
-			if sides > 150 
+			
+			if sides > 150
 				api.replyTo message, __("The maximum number of sides is 150."), no, callback
 				return
+				
 			if dice > 50
-				api.replyTo message, __("The maximum number of dices is 50."), no, callback
+				api.replyTo message, __("The maximum number of dice is 50."), no, callback
 				return
+				
 			api.sendMessage Random.dice(sides, dice)(mt).join(', '), yes, callback
-
+			
 		else
 			callback?()
-
+			
 module.exports =
 	handleMessage: handleMessage
 	handleUser: (user, callback) -> callback?()
 	unload: (callback) -> callback?()
-
-	
