@@ -20,7 +20,7 @@ config = require './config'
 winston = require 'winston'
 debug = (require 'debug')('Chatbot:db')
 api = require './api'
-{ __, __n } = require '../i18n'
+{ __, __n } = require './i18n'
 
 sqlite = require 'sqlite3'
 do sqlite.verbose if process.env.DEBUG
