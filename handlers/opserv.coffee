@@ -48,7 +48,7 @@ frontend.get '/opserv/load/:module', (req, res) ->
 		if err?
 			res.send 503, err
 		else
-			req.flash 'success', __("Successfully loaded %1$s", req.params.module)
+			req.flash 'success', __("Successfully loaded “%1$s”", req.params.module)
 			res.redirect '/'
 	, req.params.module
 frontend.get '/opserv/unload/:module', (req, res) -> 
@@ -56,7 +56,7 @@ frontend.get '/opserv/unload/:module', (req, res) ->
 		if err?
 			res.send 503, err
 		else
-			req.flash 'success', __("Successfully unloaded %1$s", req.params.module)
+			req.flash 'success', __("Successfully unloaded “%1$s”", req.params.module)
 			res.redirect '/'
 	, req.params.module
 frontend.get '/opserv/loaded', (req, res) ->

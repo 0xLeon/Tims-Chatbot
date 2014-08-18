@@ -112,9 +112,9 @@ handleMessage = (message, callback) ->
 								setQuery.run user.userID, quote, (err) ->
 									if err?
 										debug "Error while setting quote: #{err}"
-										api.replyTo message, __("Failed while setting quote of „%1$s“."), no, callback
+										api.replyTo message, __("Failed while setting quote of “%1$s”."), no, callback
 									else
-										api.replyTo message, __("Quote of „%1$s“ has been set to: “%2$s”", username, quote), yes, callback
+										api.replyTo message, __("Quote of “%1$s” has been set to: “%2$s”", username, quote), yes, callback
 							else
 								callback?()
 					else
@@ -130,9 +130,9 @@ handleMessage = (message, callback) ->
 								delQuery.run user.userID, (err) ->
 									if err?
 										debug "Error while deleting quote: #{err}"
-										api.replyTo message, __("Failed while deleting quote of „%1$s“.", username), no, callback
+										api.replyTo message, __("Failed while deleting quote of “%1$s”.", username), no, callback
 									else
-										api.replyTo message, __("Quote of „%1$s“ has been deleted.", username), yes, callback
+										api.replyTo message, __("Quote of “%1$s” has been deleted.", username), yes, callback
 							else
 								callback?()
 					else

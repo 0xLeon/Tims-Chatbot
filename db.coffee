@@ -20,6 +20,7 @@ config = require './config'
 winston = require 'winston'
 debug = (require 'debug')('Chatbot:db')
 api = require './api'
+{ __, __n } = require '../i18n'
 
 sqlite = require 'sqlite3'
 do sqlite.verbose if process.env.DEBUG
@@ -164,7 +165,7 @@ db.checkPermissionByMessage = (message, permission, callback) ->
 		if result
 			callback yes
 		else
-			api.replyTo message, "Permission denied. You lack the required permission: #{permission}", no, -> callback no
+			api.replyTo message, __("Permission denied. You lack the required permission: „%1$s“", permission), no, -> callback no
 
 # Check whether the user with the given userID has all the given permissions
 db.hasAllPermissionsByUserID = (userID, permissions, callback) ->
@@ -188,7 +189,7 @@ db.checkAllPermissionsByMessage = (message, permissions, callback) ->
 		if result
 			callback yes
 		else
-			api.replyTo message, "Permission denied. You lack some of the required permissions: #{permissions.join ', '}", no, -> callback no
+			api.replyTo message, __("Permission denied. You lack some of the required permissions: %1$s", permissions.join ', '), no, -> callback no
 
 # See `hasAnyPermissionsByUserID`, additionally whispers the user if he lacks permissions
 db.checkAnyPermissionByMessage = (message, permissions, callback) ->
@@ -196,7 +197,7 @@ db.checkAnyPermissionByMessage = (message, permissions, callback) ->
 		if result
 			callback yes
 		else
-			api.replyTo message, "Permission denied. You lack all the required permissions: #{permissions.join ', '}", no, -> callback no
+			api.replyTo message, __("Permission denied. You lack all the required permissions: %1$s", permissions.join ', '), no, -> callback no
 
 
 module.exports = db
