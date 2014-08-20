@@ -179,10 +179,10 @@ handleMessage = (message, callback) ->
 			
 			# Unless the given vote option is known add it to the voted options
 			unless votes[message.roomID].votes[option]?
-				votes[message.roomID].votes[option] = 1
-			else
-				votes[message.roomID].votes[option]++
+				votes[message.roomID].votes[option] = 0
 				
+			votes[message.roomID].votes[option]++
+			
 			callback?()
 		when 'stopVote'
 			db.checkPermissionByMessage message, 'util.startVote', (hasPermission) ->
@@ -191,7 +191,7 @@ handleMessage = (message, callback) ->
 					return
 					
 				# Run the “onTimeout” function of the currently running vote for this room
-				votes[message.roomID].timeoutFunction() if votes[message.roomID]?.timeoutFunction? and typeof votes[message.roomID].timeoutFunction is 'function'
+				votes[message.roomID]?.timeoutFunction?()
 				
 				callback?()
 		else
