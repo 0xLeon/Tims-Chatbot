@@ -42,14 +42,21 @@ do ->
 	db.prepare = (sql, parameters..., callback) ->
 		myID = i++
 		parameters.unshift sql
-		parameters.push callback
 		
 		query = null
 		
 		# (re)prepares the query
-		hup = ->
-			query = oldPrepare.apply db, parameters
-		do hup
+		hup = (callback) ->
+			# copy parameters array
+			tmp = do parameters.slice
+			
+			# append the given callback
+			tmp.push callback
+			
+			# prepare the query
+			query = oldPrepare.apply db, tmp
+			
+		hup callback
 		
 		returnValue =
 			bind: (parameters...) -> query.bind.apply query, parameters
