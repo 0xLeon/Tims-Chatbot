@@ -104,7 +104,7 @@ handleMessage = (message, callback) ->
 					
 				db.getUserByUsername username, (err, user) ->
 					unless user?
-						api.replyTo message, __("Unknown user “#{username}”."), no, callback
+						api.replyTo message, __("Unknown user “%1$s”.", username), no, callback
 						return
 						
 					sender = {}
