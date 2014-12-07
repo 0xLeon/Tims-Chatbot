@@ -66,7 +66,7 @@ process.on 'SIGINT', -> api.leaveChat -> process.exit 0
 # gracefully exit chat upon encountering an uncaughtException
 process.once 'uncaughtException', (err) ->
 	console.log 'Uncaught exception:'
-	console.log err
+	console.log err.stack
 	api.leaveChat -> process.exit 0
 
 api.fetchSecurityToken -> api.sendLoginRequest ->
