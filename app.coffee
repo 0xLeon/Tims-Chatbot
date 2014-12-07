@@ -41,6 +41,7 @@ common.request = request
 
 config.host = config.host.replace /\/+$/, ''
 
+config.handlers ?= [ ]
 config.port ?= 9001
 config.ip ?= '0.0.0.0'
 config.enableFrontend ?= yes
