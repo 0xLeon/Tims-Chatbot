@@ -52,7 +52,7 @@ handleMessage = (message, callback) ->
 				api.replyTo message, __("The maximum number of dice is 50."), no, callback
 				return
 				
-			api.sendMessage Random.dice(sides, dice)(mt).join(', '), yes, callback
+			api.sendMessage Random.dice(sides, dice)(mt).join(', '), no, message.roomID, callback
 			
 		else
 			callback?()
