@@ -64,7 +64,12 @@ handleMessage = (message, callback) ->
 			if err?
 				debug "Error while checking key “#{key}”: #{err}"
 			else if row?
-				api.sendMessage "[#{key}] #{row.value}", no, message.roomID, callback
+				reply = "[#{key}] #{row.value}"
+
+				if message.type is common.messageTypes.WHISPER
+					api.replyTo message, reply, no, callback
+				else
+					api.sendMessage reply, no, message.roomID, callback
 			else
 				callback?()
 	else if message.message[0] is '.' # check other dictionary commands
