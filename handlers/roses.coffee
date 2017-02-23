@@ -110,6 +110,10 @@ handleMessage = (message, callback) ->
 					return
 				
 				async.eachSeries usernames, (username, callback) ->
+					if username? and username.toLowerCase() is message.username.toLowerCase()
+						api.replyTo message, __("You must not send a rose to yourself."), no, callback
+						return
+						
 					db.getUserByUsername username, (err, user) ->
 						unless user?
 							api.replyTo message, __("Unknown user “%1$s”.", username), no
