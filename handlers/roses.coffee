@@ -95,63 +95,71 @@ handleMessage = (message, callback) ->
 		
 		switch command
 			when 'rose'
-				[ username ] = parameters.split /,/
-				username = if username.trim() isnt '' then username.trim() else null
-				
-				if username? and username.toLowerCase() is message.username.toLowerCase()
-					api.replyTo message, __("You must not send a rose to yourself."), no, callback
+				usernames = parameters.split /,/
+					.map (item) ->
+						item.trim()
+					.filter (item) ->
+						item isnt ''
+						
+				if usernames.length == 0
+					api.replyTo message, __("No valid username given."), no, callback
 					return
 					
-				db.getUserByUsername username, (err, user) ->
-					unless user?
-						api.replyTo message, __("Unknown user “%1$s”.", username), no, callback
-						return
-						
-					sender = {}
-					receiver = {}
-					
-					async.series [
-						(callback) -> queries['addUser'].run user.userID,  (err, row) ->
-							if err?
-								debug "[Rose] #{err}"
-								
-							callback?()
-						(callback) -> queries['getByID'].get message.sender, (err, row) ->
-							if err?
-								debug "[Rose] #{err}"
-							else
-								sender = row
-								
-							callback?()
-						(callback) -> queries['getByID'].get user.userID, (err, row) ->
-							if err?
-								debug "[Rose] #{err}"
-							else
-								receiver = row
-								
-							callback?()
-					], ->
-						if sender?.userID? and receiver?.userID? and sender.spendable > 0
+				if usernames.length > 10
+					usernames = usernames.splice 0, 10
+					api.replyTo message, __("You must not enter more than 10 usernames in one command!"), no
+				
+				async.eachSeries usernames, (username, callback) ->
+					db.getUserByUsername username, (err, user) ->
+						unless user?
+							api.replyTo message, __("Unknown user “%1$s”.", username), no
+						else
+							sender = {}
+							receiver = {}
+							
 							async.series [
-								(callback) -> queries['rose'].run sender.spendable - 1, sender.received, sender.userID, (err, row) ->
+								(callback) -> queries['addUser'].run user.userID,  (err, row) ->
 									if err?
 										debug "[Rose] #{err}"
 										
 									callback?()
-								(callback) -> queries['rose'].run receiver.spendable, receiver.received + 1, receiver.userID, (err, row) ->
+								(callback) -> queries['getByID'].get message.sender, (err, row) ->
 									if err?
 										debug "[Rose] #{err}"
+									else
+										sender = row
+										
+									callback?()
+								(callback) -> queries['getByID'].get user.userID, (err, row) ->
+									if err?
+										debug "[Rose] #{err}"
+									else
+										receiver = row
 										
 									callback?()
 							], ->
-								api.replyTo message, __("You’ve sent a rose to %1$s!", username), no
-								api.sendMessage "/whisper #{username}, " + __("%1$s sent you a rose!", message.username), no, callback
-						else unless sender?.userID?
-							api.replyTo message, __("You don’t have any roses!"), no, callback
-						else unless receiver?.userID?
-							# This SHOULD not happen
-							debug "[Rose] Receiver not found?"
-							callback?()
+								if sender?.userID? and receiver?.userID? and sender.spendable > 0
+									async.series [
+										(callback) -> queries['rose'].run sender.spendable - 1, sender.received, sender.userID, (err, row) ->
+											if err?
+												debug "[Rose] #{err}"
+												
+											callback?()
+										(callback) -> queries['rose'].run receiver.spendable, receiver.received + 1, receiver.userID, (err, row) ->
+											if err?
+												debug "[Rose] #{err}"
+												
+											callback?()
+									], ->
+										api.replyTo message, __("You’ve sent a rose to %1$s!", user.lastUsername), no
+										api.sendMessage "/whisper #{user.lastUsername}, " + __("%1$s sent you a rose!", message.username), no, callback
+								else unless sender?.userID?
+									api.replyTo message, __("You don’t have any roses!"), no, callback
+								else unless receiver?.userID?
+									# This SHOULD not happen
+									debug "[Rose] Receiver not found?"
+									callback?()
+				, callback
 			when 'roses'
 				[ username ] = parameters.split /,/
 				username = if username.trim() isnt '' then username.trim() else message.username
