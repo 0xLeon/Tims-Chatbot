@@ -106,7 +106,6 @@ handleMessage = (message, callback) ->
 					return
 					
 				if usernames.length > 10
-					usernames = usernames.splice 0, 10
 					api.replyTo message, __("You must not enter more than 10 usernames in one command!"), no, callback
 					return
 				
