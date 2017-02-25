@@ -24,6 +24,8 @@ debug = (require 'debug')('Chatbot:api')
 
 remainingFails = 3
 
+onlineUsers = {}
+
 # attempts to retrieve the current security token
 # calls the callback without parameters afterwards
 fetchSecurityToken = (callback) ->
@@ -112,6 +114,17 @@ fetchMessages = (callback) ->
 				common.fatal "Invalid JSON returned by NewMessages #{body}"
 			else
 				winston.warn "Fetching messages failed. Remaining fails until shutdown: #{remainingFails}"
+			
+		if data.users?	
+			onlineUsers =
+				0: {}
+				
+			data.users.forEach (user) ->
+				unless onlineUsers.hasOwnProperty user.roomID
+					onlineUsers[user.roomID] = {}
+					
+				onlineUsers[0][user.userID] = user.username
+				onlineUsers[user.roomID][user.userID] = user.username
 				
 		callback? data
 
@@ -145,6 +158,8 @@ replyTo = (message, reply, enableSmilies = yes, callback) -> sendMessage "/whisp
 # escapes the / at the beginning of a message
 escapeMessage = (message) -> message.replace /^\//, '//'
 
+getOnlineUsers = -> onlineUsers
+
 module.exports =
 	fetchSecurityToken: fetchSecurityToken
 	sendLoginRequest: sendLoginRequest
@@ -156,3 +171,4 @@ module.exports =
 	sendMessage: sendMessage
 	replyTo: replyTo
 	escapeMessage: escapeMessage
+	getOnlineUsers: getOnlineUsers
