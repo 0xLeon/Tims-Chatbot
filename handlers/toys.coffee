@@ -17,6 +17,7 @@
 ###
 
 debug = (require 'debug')('Chatbot:toys')
+common = require '../common'
 api = require '../api'
 Random = require 'random-js'
 { __, __n } = require '../i18n'
@@ -53,6 +54,31 @@ handleMessage = (message, callback) ->
 				return
 				
 			api.sendMessage Random.dice(sides, dice)(mt).join(', '), no, message.roomID, callback
+			
+		when 'user'
+			userlist = api.getOnlineUsers()
+			
+			if userlist.length is 0 or userlist[message.roomID] is undefined or userlist[message.roomID].length is 0
+				callback?()
+				return
+				
+			now = new Date()
+			digestBase = Date.UTC now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0
+			digest = digestBase + message.message.trim().toLowerCase()
+				.replace /\s/g, ''
+				.split ''
+				.reduce (acc, s) ->
+					acc + s.codePointAt(0)
+				, 0
+				
+			userIDs = Object.keys userlist[message.roomID]
+			userID = userIDs[digest % userIDs.length]
+			response = "[#{message.username}] #{userlist[message.roomID][userID]}"
+			
+			if message.type is common.messageTypes.WHISPER
+				api.replyTo message, response, no, callback
+			else
+				api.sendMessage response, no, message.roomID, callback
 			
 		else
 			callback?()
